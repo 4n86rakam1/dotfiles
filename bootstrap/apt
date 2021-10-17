@@ -39,6 +39,7 @@ apt_packages_list=(
     glances
     stress
     stress-ng
+    python3-tqdm
 )
 
 sudo apt-get install -qq "${apt_packages_list[@]}"
