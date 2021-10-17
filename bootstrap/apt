@@ -39,6 +39,7 @@ apt_packages_list=(
     stress
     stress-ng
     python3-tqdm
+    qterminal
 )
 
 sudo apt-get install -qq "${apt_packages_list[@]}"
