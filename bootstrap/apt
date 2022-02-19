@@ -30,7 +30,8 @@ apt_packages_list=(
     qemu-kvm
     nmap
     jq
-    ibus-mozc
+    fcitx5
+    fcitx5-mozc
     mozc-utils-gui
     piper
     speedtest-cli
