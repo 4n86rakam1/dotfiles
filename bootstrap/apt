@@ -15,8 +15,6 @@ apt_packages_list=(
     net-tools
     vim
     vagrant
-    virtualbox
-    virtualbox-guest-additions-iso
     fonts-noto-color-emoji
     graphviz
     default-jre
