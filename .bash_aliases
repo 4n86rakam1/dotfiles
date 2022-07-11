@@ -12,13 +12,10 @@ case `uname` in
         ;;
 esac
 
-alias be="bundle exec"
 alias g="git"
 alias globalip="curl inet-ip.info"
 alias grep="grep --color"
 alias nocomgrep='grep "^[^#;]" --color=never'
-alias syc="systemctl"
-alias em="emacs"
 alias dirusg="sudo du -h --max-depth=1 | sort -hrk1 | head -20"
 
 if hash kubectl 2> /dev/null; then
@@ -34,19 +31,4 @@ tfinit() {
     terraform init
     terraform validate
     terraform apply
-}
-
-check_aws_credential() {
-    aws sts get-caller-identity
-    echo AWS_REGION: "${AWS_REGION:-none}"
-    echo AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION:-none}"
-}
-
-chr() {
-    # shellcheck disable=SC2059
-    printf \\"$(printf '%03o' "$1")"
-}
-
-ord() {
-    printf '%d' "'$1"
 }
