@@ -25,6 +25,7 @@ apt_packages_list=(
     glances
     python3-tqdm
     qterminal
+    seahorse
 )
 
 sudo apt-get install -qq "${apt_packages_list[@]}"
