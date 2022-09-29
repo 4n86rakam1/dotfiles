@@ -3,22 +3,12 @@
 apt_packages_list=(
     emacs
     emacs-mozc-bin
-    cmus
-    arp-scan
     dconf-cli
     dconf-editor
     tree
-    gnome-tweaks
-    mysql-client
     xsel
-    pinta
-    net-tools
     vim
-    vagrant
     fonts-noto-color-emoji
-    graphviz
-    default-jre
-    imagemagick
     htop
     vlc
     libreoffice
@@ -26,17 +16,13 @@ apt_packages_list=(
     libvirt-daemon
     virt-manager
     qemu-kvm
-    nmap
     jq
     fcitx5
     fcitx5-mozc
     mozc-utils-gui
-    piper
     speedtest-cli
     pwgen
     glances
-    stress
-    stress-ng
     python3-tqdm
     qterminal
 )
