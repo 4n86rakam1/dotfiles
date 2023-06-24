@@ -15,9 +15,9 @@ commands:
           no_output_timeout: 30m
 
 executors:
-  ubuntu-focal:
+  ubuntu:
     docker:
-      - image: maya2250/dotfiles:ubuntu-20.04
+      - image: maya2250/dotfiles:ubuntu-23.04
 
 jobs:
   build:
@@ -34,5 +34,5 @@ workflows:
   matrix-build:
     jobs:
       - build:
-          name: ubuntu-focal
-          executor: ubuntu-focal
+          name: ubuntu
+          executor: ubuntu
