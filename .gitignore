@@ -3,3 +3,4 @@
 *.swp
 .vim/.netrwhist
 README.html
+Brewfile.lock.json
