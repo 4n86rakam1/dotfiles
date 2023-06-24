@@ -124,31 +124,7 @@
         )
   )
 
-(use-package company-lsp
-  :config
-  (push 'company-lsp company-backends)
-  :custom
-  (company-lsp-cache-candidates t))
-
-(use-package company
-  :config
-  (add-hook 'after-init-hook 'global-company-mode)
-  :custom
-  (company-dabbrev-downcase nil)
-  (company-idle-delay 0)
-  :diminish 'company-mode)
-
 (defvar my/default_venv_directory "~/.emacs.d/.python-environments/default")
-
-(use-package company-jedi
-  :config
-  (setq jedi:environment-virtualenv (list (expand-file-name my/default_venv_directory)))
-  (add-hook 'python-mode-hook 'jedi:setup)
-  (setq jedi:complete-on-dot t)
-  (setq jedi:use-shortcuts t)
-  (defun config/enable-company-jedi ()
-    (add-to-list 'company-backends 'company-jedi))
-  (add-hook 'python-mode-hook 'config/enable-company-jedi))
 
 (use-package pyvenv
   :config
@@ -211,13 +187,6 @@
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode))
   :config (setq markdown-command "multimarkdown"))
-
-(use-package gitignore-mode
-  :mode ("\\.dockerignore\\'" . gitignore-mode)
-  :config
-  (defun my/gitignore-mode-hook ()
-    (setq require-final-newline t))
-  (add-hook 'gitignore-mode-hook 'my/gitignore-mode-hook))
 
 (use-package powerline
   :config
