@@ -21,6 +21,6 @@ if ! cd ~/.dotfiles &> /dev/null; then
     cd ~/.dotfiles
 fi
 
-find bootstrap/ -type f -executable -exec bash -eux {} \;
+find bootstrap/ -type f -executable | sort | xargs -I {} bash -eux {}
 
 git remote set-url origin git@github.com:maya2250/dotfiles.git
