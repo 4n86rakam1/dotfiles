@@ -26,4 +26,4 @@ apt_packages_list=(
     seahorse
 )
 
-sudo apt-get install -qq "${apt_packages_list[@]}"
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -qq "${apt_packages_list[@]}"
