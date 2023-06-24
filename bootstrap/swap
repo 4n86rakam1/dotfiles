@@ -1,0 +1,14 @@
+#!/bin/bash -eux
+
+grep --quiet '/swapfile' /etc/fstab && exit 0
+
+sudo dd if=/dev/zero of=/swapfile bs=1MiB count=$((32*1024))
+
+sudo chmod 0600 /swapfile
+sudo mkswap /swapfile
+
+cat <<EOF | sudo tee -a /etc/fstab
+/swapfile                   none            swap    sw              0       0
+EOF
+
+sudo swapon -a

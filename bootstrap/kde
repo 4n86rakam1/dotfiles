@@ -1,0 +1,25 @@
+#!/bin/bash -eux
+
+if [ "${XDG_CURRENT_DESKTOP}" = "KDE" ]; then
+    cat <<EOF | crudini --merge ~/.config/gtk-3.0/settings.ini
+[Settings]
+gtk-key-theme-name=Emacs
+EOF
+
+    cat <<EOF | crudini --merge ~/.config/kcminputrc
+[Keyboard]
+RepeatDelay=182
+RepeatRate=42
+EOF
+
+    cat <<EOF | crudini --merge ~/.config/kcminputrc
+[Mouse]
+XLbInptNaturalScroll=true
+EOF
+
+    cat <<EOF | crudini --merge ~/.config/kscreenlockerrc
+[Daemon]
+Autolock=false
+LockOnResume=true
+EOF
+fi

@@ -1,0 +1,21 @@
+#!/bin/bash -eux
+
+sudo apt-get install -qq fcitx5 fcitx5-mozc
+
+crudini --set ~/.config/fcitx5/config Hotkey/TriggerKeys 0 Super+space
+
+cat <<EOF | crudini --merge ~/.config/fcitx5/config
+[Hotkey/TriggerKeys]
+0=Super+space
+EOF
+
+cat <<EOF | crudini --merge ~/.config/fcitx5/profile
+[Groups/0]
+DefaultIM=mozc
+
+[Groups/0/Items/1]
+Name=mozc
+Layout=
+EOF
+
+sudo apt-get remove -qq ibus
