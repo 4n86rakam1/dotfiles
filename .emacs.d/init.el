@@ -303,6 +303,8 @@
   :config
   (global-undo-tree-mode)
   (unbind-key "C-?" undo-tree-map)
+  (add-to-list 'undo-tree-history-directory-alist
+			   (cons "." (concat user-emacs-directory "/undo-tree")))
   :diminish 'undo-tree-mode)
 
 (use-package prettier-js
