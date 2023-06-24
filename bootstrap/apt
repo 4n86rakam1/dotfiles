@@ -29,12 +29,3 @@ apt_packages_list=(
 )
 
 sudo apt-get install -qq "${apt_packages_list[@]}"
-
-mkdir -p ~/.config/autostart
-
-autostart_package=(guake.desktop emacs.desktop google-chrome.desktop)
-
-for package in "${autostart_package[@]}"; do
-    test -f /usr/share/applications/"${package}" && \
-        ln -sf /usr/share/applications/"${package}" ~/.config/autostart/"${package}"
-done
