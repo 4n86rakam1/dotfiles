@@ -5,7 +5,7 @@
 deb_dir=$(mktemp -d)
 deb_packages_list=(
     https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-    "https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2020.03.04_amd64.deb"
+    "https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2022.12.05_amd64.deb"
 )
 
 pushd "${deb_dir}" > /dev/null
