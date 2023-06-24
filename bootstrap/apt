@@ -3,8 +3,6 @@
 apt_packages_list=(
     emacs
     emacs-mozc-bin
-    dconf-cli
-    dconf-editor
     tree
     xsel
     vim
