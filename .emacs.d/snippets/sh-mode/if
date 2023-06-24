@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: if
+# key: if
+# --
+if ${1:[ $# -ne 1 ]}; then
+   ${2:echo "Usage: \$0 [option]"}
+fi
+$0
