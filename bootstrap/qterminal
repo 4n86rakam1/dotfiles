@@ -1,0 +1,5 @@
+#!/bin/bash -eux
+
+cd "$(dirname "$0")"
+
+cp -r qterminal.org ~/.config/
