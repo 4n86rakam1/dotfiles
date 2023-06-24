@@ -1,5 +1,7 @@
 #!/bin/bash -eux
 
+which dconf || exit 0
+
 test "${DISPLAY:-null}" = "null" && exit 0
 
 cd "$(dirname "$0")"
