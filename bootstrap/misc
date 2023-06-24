@@ -5,3 +5,7 @@ LANG=C xdg-user-dirs-update --force
 if [ -d /usr/share/gnome-shell/extensions/desktop-icons@csoriano/ ]; then
     sudo rm -rf /usr/share/gnome-shell/extensions/desktop-icons@csoriano
 fi
+
+if [ -e /etc/default/keyboard ]; then 
+    sudo sed -i -e 's/^XKBOPTIONS=""$/XKBOPTIONS="ctrl:nocaps"/' /etc/default/keyboard
+fi
