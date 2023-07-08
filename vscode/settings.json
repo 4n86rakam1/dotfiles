@@ -1,20 +1,76 @@
 {
-  "window.zoomLevel": -1,
+  "terminal.integrated.profiles.linux": {
+    "bash": {
+      "path": "env",
+      "args": [
+        "-i",
+        "TERM=xterm-256color",
+        "PS1=$ ",
+        "bash",
+        "--noprofile",
+        "--norc"
+      ],
+      "icon": "terminal-bash",
+      "color": "terminal.ansiGreen"
+    },
+    "zsh": {
+      "path": "/usr/bin/zsh",
+      "args": ["-f", "--no-rcs"],
+      "icon": "terminal",
+      "color": "terminal.ansiGreen"
+    },
+    "python3": {
+      "path": "python3",
+      "args": ["-q"],
+      "icon": "debug-all",
+      "color": "terminal.ansiGreen"
+    },
+    "tmux": null
+  },
+
+  "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.cursorStyleInactive": "none",
+
+  // Language Settings
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnType": true
+  },
+  "python.analysis.autoFormatStrings": true,
+
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "shellcheck.enable": true,
+
+  "go.formatTool": "goimports",
+  "go.useLanguageServer": true,
+
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.multiCursorModifier": "ctrlCmd",
+
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
   "files.trimFinalNewlines": true,
-  "editor.formatOnSave": true,
+
   "git.autofetch": true,
-  "go.formatTool": "goimports",
-  "go.useLanguageServer": true,
+
   "editor.wordWrap": "on",
-  "terminal.integrated.shellArgs.linux": ["--noprofile", "--norc"],
   "breadcrumbs.enabled": true,
-  "workbench.activityBar.visible": false,
   "editor.minimap.enabled": false,
-  "zenMode.centerLayout": false,
-  "zenMode.hideLineNumbers": false,
-  "zenMode.hideTabs": false,
   "workbench.colorCustomizations": {
     "editorCursor.foreground": "#ff9200",
     "editor.lineHighlightBackground": "#000000",
@@ -23,6 +79,15 @@
   },
   "editor.cursorStyle": "line",
   "editor.cursorWidth": 3,
-  "workbench.colorTheme": "One Dark Pro",
-  "workbench.startupEditor": "none"
+  "workbench.startupEditor": "none",
+  "window.zoomLevel": -0.5,
+
+  "keyboard.dispatch": "keyCode",
+  "extensions.autoUpdate": "onlyEnabledExtensions",
+  "go.toolsManagement.autoUpdate": true,
+
+  "gitlens.codeLens.authors.enabled": false,
+  "gitlens.codeLens.recentChange.enabled": false,
+
+  "explorer.confirmDragAndDrop": false
 }
