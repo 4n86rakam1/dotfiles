@@ -20,7 +20,6 @@ apt_packages_list=(
     mozc-utils-gui
     speedtest-cli
     pwgen
-    glances
     python3-tqdm
     qterminal
     seahorse
