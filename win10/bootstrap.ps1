@@ -14,9 +14,9 @@ if (-Not (Get-Command git -ErrorAction SilentlyContinue)) {
 }
 
 if (-Not (git rev-parse --git-dir 2> $NULL)) {
-    git clone https://github.com/maya2250/dotfiles $Env:HOMEPATH\.dotfiles
+    git clone https://github.com/4n86rakam1/dotfiles $Env:HOMEPATH\.dotfiles
     Set-Location $Env:HOMEPATH\.dotfiles\win10
-    git remote set-url origin git@github.com:maya2250/dotfiles.git
+    git remote set-url origin git@github.com:4n86rakam1/dotfiles.git
 }
 
 choco install --yes --no-progress (Get-content -Path .\choco_packages.txt)

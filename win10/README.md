@@ -4,7 +4,7 @@
 
 ```ps1
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force
-git clone https://github.com/maya2250/dotfiles ~\.dotfiles
+git clone https://github.com/4n86rakam1/dotfiles ~\.dotfiles
 cd ~\.dotfiles\win10
 & .\bootstrap.ps1
 ```
@@ -13,5 +13,5 @@ cd ~\.dotfiles\win10
 
 ```ps1
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force
-Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/maya2250/dotfiles/master/win10/bootstrap.ps1'))
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/4n86rakam1/dotfiles/master/win10/bootstrap.ps1'))
 ```

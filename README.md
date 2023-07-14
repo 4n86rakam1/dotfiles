@@ -10,7 +10,7 @@
 Run all script within `bootstrap/` directory with the following commnad:
 
 ``` bash
-wget -qO - https://raw.githubusercontent.com/maya2250/dotfiles/master/install | bash
+wget -qO - https://raw.githubusercontent.com/4n86rakam1/dotfiles/master/install | bash
 ```
 
 Tested in Ubuntu 23.04 (Lunar Lobster)

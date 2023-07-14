@@ -17,10 +17,10 @@ enable_sudo
 install_build_dependencies
 
 if ! cd ~/.dotfiles &> /dev/null; then
-    git clone https://github.com/maya2250/dotfiles.git ~/.dotfiles
+    git clone https://github.com/4n86rakam1/dotfiles.git ~/.dotfiles
     cd ~/.dotfiles
 fi
 
 find bootstrap/ -type f -executable | sort | xargs -I {} bash -eux {}
 
-git remote set-url origin git@github.com:maya2250/dotfiles.git
+git remote set-url origin git@github.com:4n86rakam1/dotfiles.git
