@@ -1,19 +1,63 @@
-/elpa
-/auto-save-list
-/.mc-lists.el
-/ac-comphist.dat
-/ido.last
-/elpa/archives/*
-/auto-save-list
-/smex-items
-/games
-/.python-environments/
-/tramp
-/.lsp-session-*
+# -*- mode: gitignore; -*-
+*~
+\#*\#
 /.emacs.desktop
 /.emacs.desktop.lock
-/transient
-/bookmarks
-/session.*
-/snippets/cfn-mode/
-/eln-cache/
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Org-mode
+.org-id-locations
+*_archive
+
+# flymake-mode
+*_flymake.*
+
+# eshell files
+/eshell/history
+/eshell/lastdir
+
+# elpa packages
+/elpa/
+
+# reftex files
+*.rel
+
+# AUCTeX auto folder
+/auto/
+
+# cask packages
+.cask/
+dist/
+
+# Flycheck
+flycheck_*.el
+
+# server auth directory
+/server/
+
+# projectiles files
+.projectile
+
+# directory configuration
+.dir-locals.el
+
+# network security
+/network-security.data
+
+.mc-lists.el
+ac-comphist.dat
+ido.last
+elpa/
+smex-items
+games
+tramp
+.lsp-session-*
+transient
+bookmarks
+session.*
+snippets/cfn-mode/
+eln-cache/
+url/
