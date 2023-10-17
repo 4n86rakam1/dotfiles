@@ -18,7 +18,6 @@ if hash n 2> /dev/null; then
 fi
 
 if hash go 2> /dev/null; then
-    export GOPATH=~/.go
     gopath=$(go env GOPATH)
     export PATH="${gopath}/bin:$PATH"
     unset gopath
