@@ -106,30 +106,6 @@
   (hiwin-activate)
   (set-face-background 'hiwin-face "gray32"))
 
-(use-package lsp-mode
-  :custom
-  (lsp-auto-guess-root t)
-  (lsp-restart 'ignore)
-  (lsp-auto-configure nil)
-  :config
-  (add-hook 'prog-mode-hook #'lsp))
-
-(use-package lsp-ui
-  :config
-  (setq lsp-prefer-flymake nil
-        lsp-ui-doc-enable nil
-        lsp-ui-peek-enable nil
-        ;; lsp-ui-sideline-enable nil
-        ;; lsp-ui-imenu-enable nil
-        )
-  )
-
-(defvar my/default_venv_directory "~/.emacs.d/.python-environments/default")
-
-(use-package pyvenv
-  :config
-  (pyvenv-activate my/default_venv_directory))
-
 (use-package ido
   :config
   (ido-mode t)
@@ -155,27 +131,9 @@
   :bind
   ("C-c n" . flycheck-next-error)
   ("C-c p" . flycheck-previous-error)
-  :magic (("^AWSTemplateFormatVersion" . cfn-mode)
-          ("^Transform" . cfn-mode))
   :config
   (global-flycheck-mode)
-  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
-  (define-derived-mode cfn-mode yaml-mode
-    "cfn"
-    "Cloudformation template mode.")
-  (flycheck-define-checker cfn-lint
-    "A Cloudformation linter using cfn-python-lint.
-    See URL 'https://github.com/awslabs/cfn-python-lint'."
-    :command ("cfn-lint" "-f" "parseable" source)
-    :error-patterns
-    ((warning line-start (file-name) ":" line ":" column
-              ":" (one-or-more digit) ":" (one-or-more digit) ":"
-              (id "W" (one-or-more digit)) ":" (message) line-end)
-     (error line-start (file-name) ":" line ":" column
-            ":" (one-or-more digit) ":" (one-or-more digit) ":"
-            (id "E" (one-or-more digit)) ":" (message) line-end))
-    :modes (cfn-mode))
-  (add-to-list 'flycheck-checkers 'cfn-lint))
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
 
 (use-package mozc
   :config
@@ -199,40 +157,8 @@
   :mode ("\\.ya?ml\\'" . yaml-mode)
   :hook (yaml-mode . my/delete-trailing-whitespace-hook))
 
-(use-package typescript-mode
-  :mode "\\.ts?x\\'")
-
-(use-package add-node-modules-path
-  :hook (js-mode js2-mode))
-
-(use-package js2-mode
-  :mode "\\.js\\'"
-  :custom (js2-mode-show-strict-warnings nil))
-
-(use-package rjsx-mode
-  :mode ("components\\/.*\\.js\\'" . rjsx-mode))
-
-(use-package web-mode
-  :mode "\\.html\\'")
-
-(use-package emmet-mode
-  :hook web-mode)
-
-(use-package go-mode
-  :config
-  (add-hook 'before-save-hook #'gofmt-before-save))
-
-(use-package ruby-mode
-  :custom (ruby-insert-encoding-magic-comment nil))
-
-(use-package slim-mode)
-
-(use-package nginx-mode)
-
 (use-package vimrc-mode
   :mode "\\.vim\\(rc\\)?\\'")
-
-(use-package fish-mode)
 
 (use-package powershell)
 
@@ -242,16 +168,6 @@
   (org-clock-clocktable-default-properties '(:maxlevel 3))
   (org-adapt-indentation nil)
   (org-edit-src-content-indentation 0))
-
-(use-package ox-md
-  :ensure nil
-  :after org)
-
-(use-package terraform-mode
-  :hook
-  (terraform-mode . terraform-format-on-save-mode))
-
-(use-package cmake-mode)
 
 (use-package editorconfig
   :config
@@ -279,21 +195,6 @@
   :hook (web-mode html-mode css-mode js-mode emacs-lisp-mode)
   :diminish 'rainbow-mode)
 
-(use-package which-key
-  :config
-  (which-key-mode)
-  :diminish 'which-key-mode)
-
-(use-package neotree
-  :bind
-  ("<f8>" . neotree-toggle)
-  :config
-  (defun my/neotree-hook ()
-    (display-line-numbers-mode -1))
-  (add-hook 'neotree-mode-hook 'my/neotree-hook)
-  :custom
-  (neo-theme 'ascii))
-
 (use-package highlight-indent-guides
   :hook (yaml-mode . highlight-indent-guides-mode)
   :custom (highlight-indent-guides-method 'column)
@@ -306,8 +207,3 @@
   (add-to-list 'undo-tree-history-directory-alist
 			   (cons "." (concat user-emacs-directory "/undo-tree")))
   :diminish 'undo-tree-mode)
-
-(use-package prettier-js
-  :hook ((js2-mode css-mode scss-mode) . prettier-js-mode))
-
-(use-package rfc-mode)
