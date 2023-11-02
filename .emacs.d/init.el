@@ -144,7 +144,24 @@
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode))
-  :config (setq markdown-command "multimarkdown"))
+  :config
+  (setq markdown-command "multimarkdown"))
+  ;; (defun my/auto-fix-markdown ()
+  ;;   (interactive)
+  ;;   (call-process-shell-command
+  ;;    (format "markdownlint -c ~/.markdownlint.yaml -f %s" buffer-file-name)
+  ;;    nil "*Shell Command Output*" t)
+  ;;   (shell-command (format "markdown-toc --maxdepth 4 --bullets '-' -i %s" buffer-file-name))
+  ;;   (revert-buffer t t))
+  ;; (eval-after-load 'markdown-mode
+  ;;   '(add-hook 'markdown-mode-hook (lambda () (add-hook 'after-save-hook 'my/auto-fix-markdown)))))
+
+(use-package grip-mode
+  :custom
+  (grip-binary-path "~/Documents/venv/bin/grip")
+  :bind (:map markdown-mode-command-map
+         ("g" . grip-mode))
+  :after markdown-mode)
 
 (use-package powerline
   :config
