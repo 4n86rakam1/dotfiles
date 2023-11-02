@@ -7,7 +7,6 @@ deb_dir=$(mktemp -d)
 pushd "${deb_dir}" > /dev/null
 
 curl -sLo google-chrome.deb "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-curl -sLo dropbox.deb "https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2022.12.05_amd64.deb"
 curl -sLo vscode.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
 curl -sLo discord.deb "https://discord.com/api/download?platform=linux&format=deb"
 
