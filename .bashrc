@@ -1,7 +1,9 @@
 # If not running interactively, do not do anything
 [[ $- != *i* ]] && return
-if [[ -z "$TMUX" ]] && hash tmux 2> /dev/null; then
-    tmux attach -d || exec tmux
+
+# tmux is enabled on qterminal only
+if [[ $(ps -p ${PPID} -o cmd=) == *qterminal ]]; then
+    tmux attach || exec tmux
 fi
 
 # ref: https://github.com/scop/bash-completion#installation
