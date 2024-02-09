@@ -56,3 +56,5 @@ HISTSIZE=-1
 HISTFILESIZE=-1
 HISTCONTROL=ignoreboth
 shopt -s histappend
+
+export LESS="-asXFMMRqix8 --mouse --wheel-lines=3"
