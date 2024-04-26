@@ -1,4 +1,4 @@
-FROM ubuntu:lunar-20231128
+FROM ubuntu:24.04
 LABEL maintainer="maya2250.dev@gmail.com"
 
 ARG USER="guest"
