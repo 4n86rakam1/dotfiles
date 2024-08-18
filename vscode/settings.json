@@ -89,5 +89,7 @@
   "gitlens.codeLens.authors.enabled": false,
   "gitlens.codeLens.recentChange.enabled": false,
 
-  "explorer.confirmDragAndDrop": false
+  "explorer.confirmDragAndDrop": false,
+
+  "security.workspace.trust.enabled": false
 }
