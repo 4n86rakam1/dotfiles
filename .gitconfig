@@ -5,6 +5,7 @@ path = .gitconfig.user
 [core]
 editor = vim -c \"set fenc=utf-8\"
 excludesfile = ~/.gitignore_global
+quotepath = false
 
 [color]
 ui = true
