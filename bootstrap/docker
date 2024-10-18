@@ -2,21 +2,41 @@
 
 [[ $(id -u) -eq 0 ]] || exec sudo -E "$0"
 
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
+dist=$(grep '^ID=' /etc/os-release | cut -d'=' -f2)
 build_dependencies=(apt-transport-https ca-certificates curl gnupg-agent software-properties-common)
 
-apt-get -qq update
-apt-get -qq install "${build_dependencies[@]}"
-apt-get -qq install docker-ce docker-ce-cli containerd.io
+case "${dist}" in
+    "ubuntu")
+        # https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
+        sudo install -m 0755 -d /etc/apt/keyrings
+        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+        sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+        # Add the repository to Apt sources:
+        echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+        apt-get -qq update
+        apt-get -qq install "${build_dependencies[@]}"
+        apt-get -qq install docker-ce docker-ce-cli containerd.io
+        ;;
+    "kali")
+        # https://www.kali.org/docs/containers/installing-docker-on-kali/
+        echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | \
+            sudo tee /etc/apt/sources.list.d/docker.list
+
+        curl -fsSL https://download.docker.com/linux/debian/gpg | \
+            sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+        apt-get -qq update
+        apt-get -qq install "${build_dependencies[@]}"
+        apt-get -qq install docker-ce docker-ce-cli containerd.io
+esac
+
 
 # https://docs.docker.com/engine/install/linux-postinstall/
 if logname &> /dev/null; then
