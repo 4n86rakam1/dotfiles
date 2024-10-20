@@ -6,4 +6,4 @@ while read -r ext; do
     code --install-extension "${ext}";
 done < ~/.dotfiles/vscode/extensions.txt
 
-ln -s ~/.dotfiles/vscode/settings.json ~/.config/Code/User/settings.json
+ln -sf ~/.dotfiles/vscode/settings.json ~/.config/Code/User/settings.json
