@@ -8,7 +8,6 @@ dotfiles_list=(
     .emacs.d/
     .gitconfig
     .gitignore_global
-    .docker/
     .tmux.conf
     .tmux.conf.linux
     .tmux.conf.macos
