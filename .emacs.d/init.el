@@ -157,8 +157,6 @@
   ;;   '(add-hook 'markdown-mode-hook (lambda () (add-hook 'after-save-hook 'my/auto-fix-markdown)))))
 
 (use-package grip-mode
-  :custom
-  (grip-binary-path "~/Documents/venv/bin/grip")
   :bind (:map markdown-mode-command-map
          ("g" . grip-mode))
   :after markdown-mode)
