@@ -13,4 +13,4 @@ Thumbs.db
 .envrc
 
 .vscode
-*.tmp
+*.tmp.*
