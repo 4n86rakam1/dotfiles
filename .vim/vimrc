@@ -6,6 +6,7 @@ set showmatch
 set smartindent
 set shiftwidth=2 tabstop=2 expandtab
 set hlsearch
+set paste
 
 scriptencoding utf-8
 set encoding=utf-8
