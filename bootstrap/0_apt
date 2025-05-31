@@ -24,6 +24,7 @@ apt_packages_list=(
     qterminal
     seahorse
     crudini
+    nvtop
 )
 
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -qq "${apt_packages_list[@]}"
