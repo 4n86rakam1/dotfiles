@@ -43,15 +43,33 @@ function __my_parse_git_branch() {
     fi
 }
 
-function __my_promps() {
+function __my_custom_prompt() {
     tail="${WHITE}›${COLOREND}"
     PS1="${YELLOW}\w${COLOREND}$(__my_parse_git_branch) ${tail} "
+}
+
+__prompt_style="custom"
+
+function __set_prompt() {
+    if [[ "${__prompt_style}" == "custom" ]]; then
+        __my_custom_prompt
+    else
+        PS1='$ '
+    fi
+}
+
+function toggle_prompt() {
+    if [[ "${__prompt_style}" == "custom" ]]; then
+        __prompt_style="simple"
+    else
+        __prompt_style="custom"
+    fi
 }
 
 __prompt_common_prefix="history -a; history -c; history -r"
 
 PROMPT_DIRTRIM=3
-PROMPT_COMMAND="${__prompt_common_prefix}; __my_promps; ${PROMPT_COMMAND}"
+PROMPT_COMMAND="${__prompt_common_prefix}; __set_prompt; ${PROMPT_COMMAND}"
 
 HISTSIZE=-1
 HISTFILESIZE=-1
