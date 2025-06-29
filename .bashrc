@@ -50,6 +50,7 @@ function __my_promps() {
 
 __prompt_common_prefix="history -a; history -c; history -r"
 
+PROMPT_DIRTRIM=3
 PROMPT_COMMAND="${__prompt_common_prefix}; __my_promps; ${PROMPT_COMMAND}"
 
 HISTSIZE=-1
