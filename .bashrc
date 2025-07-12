@@ -1,6 +1,8 @@
 # If not running interactively, do not do anything
 [[ $- != *i* ]] && return
 
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
 # tmux is enabled on qterminal only
 if [[ $(ps -p ${PPID} -o cmd=) == *qterminal ]]; then
     tmux attach || exec tmux

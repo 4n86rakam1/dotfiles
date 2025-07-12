@@ -5,13 +5,13 @@ cd "$(dirname "$0")"
 if ! hash brew 2> /dev/null; then
     case $(uname --kernel-name) in
         Linux)
-            hash apt-get 2> /dev/null && sudo apt-get install -qq build-essential curl file git ruby
-            yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+            hash apt-get 2> /dev/null && sudo apt-get install -qq build-essential procps curl file git
+            NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
             test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             ;;
         Darwin)
-            yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+            NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             ;;
     esac
 fi
