@@ -10,6 +10,9 @@ curl -sLo google-chrome.deb "https://dl.google.com/linux/direct/google-chrome-st
 curl -sLo vscode.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
 curl -sLo discord.deb "https://discord.com/api/download?platform=linux&format=deb"
 
+# https://code.visualstudio.com/docs/setup/linux#_install-vs-code-on-linux
+echo "code code/add-microsoft-repo boolean true" | sudo debconf-set-selections
+
 apt-get install -qqf "${deb_dir}"/*.deb
 
 popd > /dev/null
