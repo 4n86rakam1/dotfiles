@@ -14,3 +14,6 @@ Thumbs.db
 
 .vscode
 *.tmp.*
+
+.claude/settings.local.json
+CLAUDE.local.md
