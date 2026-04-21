@@ -79,3 +79,4 @@ HISTCONTROL=ignoreboth
 shopt -s histappend
 
 export LESS="-asXFMMRqix8 --mouse --wheel-lines=3"
+export PATH="$HOME/.local/bin:$PATH"
