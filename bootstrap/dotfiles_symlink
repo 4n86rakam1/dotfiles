@@ -15,8 +15,11 @@ dotfiles_list=(
     .bash_completion
     .bash_aliases
     .markdownlint.yaml
+    .claude/settings.json
+    .claude/statusline.py
 )
 
 for dotfile in "${dotfiles_list[@]}"; do
-    ln -sf "${dotfiles_root_directory}/${dotfile}" "${HOME}"
+    mkdir -p "$(dirname "${HOME}/${dotfile%/}")"
+    ln -sfn "${dotfiles_root_directory}/${dotfile}" "${HOME}/${dotfile%/}"
 done
