@@ -1,0 +1,66 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git status*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git remote*)",
+      "Bash(git blame*)",
+      "Bash(git stash list*)",
+      "Bash(git tag*)",
+      "Bash(git describe*)",
+      "Bash(git grep*)",
+      "Bash(git ls-files*)",
+      "Bash(git shortlog*)",
+      "WebSearch",
+      "Bash(gh pr list*)",
+      "Bash(gh pr view*)",
+      "Bash(gh issue list*)",
+      "Bash(gh issue view*)",
+      "Bash(gh repo view*)",
+      "Bash(gh release list*)",
+      "Bash(gh run list*)",
+      "Bash(gh run view*)",
+      "Bash(gh auth status*)"
+    ],
+    "deny": [
+      "Bash(rm -rf*)",
+      "Bash(rm -r /*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(dd if=*)",
+      "Bash(mkfs*)",
+      "Bash(fdisk*)",
+      "Bash(> /etc/*)",
+      "Bash(chmod -R 777*)",
+      "Bash(sudo rm*)",
+      "Bash(sudo chmod*)",
+      "Bash(sudo chown*)",
+      "Bash(sudo dd*)",
+      "Bash(sudo mkfs*)",
+      "Bash(cat ~/.ssh*)",
+      "Bash(cat ~/.aws*)",
+      "Bash(cat ~/.gnupg*)",
+      "Bash(cat ~/.config/gcloud*)",
+      "Bash(history -c*)",
+      "Bash(history -d*)",
+      "Bash(shred*)",
+      "Bash(wipefs*)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "python3 ~/.claude/statusline.py"
+  },
+  "language": "Japanese",
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
+  "theme": "dark",
+  "autoCompactEnabled": true
+}
