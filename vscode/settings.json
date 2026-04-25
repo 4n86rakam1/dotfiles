@@ -91,5 +91,6 @@
 
   "explorer.confirmDragAndDrop": false,
 
-  "security.workspace.trust.enabled": false
+  "security.workspace.trust.enabled": false,
+  "claudeCode.preferredLocation": "panel"
 }
