@@ -13,7 +13,7 @@ apt_packages_list=(
     libvirt-clients
     libvirt-daemon
     virt-manager
-    qemu-kvm
+    qemu-system
     jq
     fcitx5
     fcitx5-mozc
