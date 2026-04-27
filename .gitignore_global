@@ -15,5 +15,8 @@ Thumbs.db
 .vscode
 *.tmp.*
 
+__pycache__/
+*.py[cod]
+
 .claude/settings.local.json
 CLAUDE.local.md
