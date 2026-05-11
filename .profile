@@ -7,3 +7,6 @@ test -f ~/.bashrc && . ~/.bashrc
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 
 export LC_TIME=C
+
+# Added by LM Studio CLI tool (lms)
+export PATH="$PATH:/home/maya/.lmstudio/bin"
