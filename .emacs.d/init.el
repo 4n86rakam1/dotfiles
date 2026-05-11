@@ -225,3 +225,16 @@
   (add-to-list 'undo-tree-history-directory-alist
 			   (cons "." (concat user-emacs-directory "/undo-tree")))
   :diminish 'undo-tree-mode)
+
+(defconst my-system-is-wsl2
+  (and (getenv "WSL_DISTRO_NAME") t))
+
+(defun my-browse-url-wsl-host-browser (url &rest _args)
+  "Browse URL with WSL host web browser."
+  (prog1 (message "Open %s" url)
+    (shell-command-to-string
+     (mapconcat #'shell-quote-argument
+                (list "cmd.exe" "/c" "start" "" url)
+                " "))))
+(when my-system-is-wsl2
+  (setq browse-url-browser-function #'my-browse-url-wsl-host-browser))
