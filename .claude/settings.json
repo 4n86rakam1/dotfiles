@@ -76,5 +76,9 @@
     "mode": "hold"
   },
   "theme": "dark",
-  "autoCompactEnabled": true
+  "editorMode": "normal",
+  "preferredNotifChannel": "auto",
+  "autoCompactEnabled": true,
+  "agentPushNotifEnabled": false,
+  "model": "opus"
 }
