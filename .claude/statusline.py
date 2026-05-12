@@ -151,7 +151,7 @@ def fmt_git(cwd):
             return None
         dirty = bool(
             subprocess.check_output(
-                [_GIT, "status", "--porcelain"],
+                [_GIT, "--no-optional-locks", "status", "--porcelain"],
                 stderr=subprocess.DEVNULL,
                 cwd=cwd,
             )
