@@ -238,3 +238,18 @@
                 " "))))
 (when my-system-is-wsl2
   (setq browse-url-browser-function #'my-browse-url-wsl-host-browser))
+
+(when (and (eq window-system 'x)
+           (getenv "WAYLAND_DISPLAY")
+           (executable-find "wl-copy"))
+  (setq interprogram-cut-function
+        (lambda (text)
+          (let ((proc (make-process :name "wl-copy"
+                                   :buffer nil
+                                   :command '("wl-copy" "--foreground" "--type" "text/plain;charset=utf-8")
+                                   :connection-type 'pipe)))
+            (process-send-string proc text)
+            (process-send-eof proc))))
+  (setq interprogram-paste-function
+        (lambda ()
+          (shell-command-to-string "wl-paste --no-newline"))))
