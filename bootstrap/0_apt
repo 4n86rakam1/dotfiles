@@ -21,7 +21,6 @@ apt_packages_list=(
     speedtest-cli
     pwgen
     python3-tqdm
-    qterminal
     seahorse
     crudini
     nvtop

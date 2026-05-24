@@ -1,0 +1,15 @@
+#!/bin/bash -eux
+set -o pipefail
+
+sudo install -m 0755 -d /etc/apt/keyrings
+
+curl -fsSL https://packagecloud.io/eugeny/tabby/gpgkey | \
+    sudo gpg --dearmor -o /etc/apt/keyrings/eugeny_tabby.gpg
+
+# noble に固定: Ubuntu 26.04 (resolute) は packagecloud 未対応
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/eugeny_tabby.gpg] \
+https://packagecloud.io/eugeny/tabby/ubuntu/ noble main" | \
+    sudo tee /etc/apt/sources.list.d/eugeny_tabby.list > /dev/null
+
+sudo DEBIAN_FRONTEND=noninteractive apt-get -qq update
+sudo DEBIAN_FRONTEND=noninteractive apt-get -qq -y install tabby-terminal
