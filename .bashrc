@@ -3,11 +3,6 @@
 
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-# tmux is enabled on qterminal only
-if [[ $(ps -p ${PPID} -o cmd=) == *qterminal ]]; then
-    tmux attach || exec tmux
-fi
-
 # ref: https://github.com/scop/bash-completion#installation
 [[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && \
     . /usr/share/bash-completion/bash_completion
