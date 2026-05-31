@@ -81,3 +81,7 @@ export PATH="$PATH:/home/maya/.lmstudio/bin"
 
 export BROWSER='/mnt/c/Program Files/Google/Chrome/Application/chrome.exe'
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+[ -d "$BUN_INSTALL" ] && export PATH="$BUN_INSTALL/bin:$PATH"
