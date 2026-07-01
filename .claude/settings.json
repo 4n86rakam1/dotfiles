@@ -64,6 +64,16 @@
           }
         ]
       }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.dotfiles/.claude/hooks/session_title.py"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
