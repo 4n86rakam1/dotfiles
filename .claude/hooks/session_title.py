@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 
 LOG_PATH = Path.home() / ".claude" / "hooks-session-title.log"
+DEBUG_LOG_PATH = Path.home() / ".claude" / "hooks-session-title-debug.log"
 MAX_TITLE_CHARS = 100
 BRANCH_SKIP = {"master", "main"}
 RUN_REASONS = {"prompt_input_exit", "clear", "resume"}
@@ -24,6 +25,21 @@ def log_failure(reason: str) -> None:
         with LOG_PATH.open("a", encoding="utf-8") as f:
             ts = time.strftime("%Y-%m-%d %H:%M:%S")
             f.write(f"{ts} {reason}\n")
+    except OSError:
+        pass
+
+
+def log_event(event: dict) -> None:
+    try:
+        DEBUG_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with DEBUG_LOG_PATH.open("a", encoding="utf-8") as f:
+            ts = time.strftime("%Y-%m-%d %H:%M:%S")
+            payload = {
+                "reason": event.get("reason"),
+                "session_id": event.get("session_id"),
+                "cwd": event.get("cwd"),
+            }
+            f.write(f"{ts} {json.dumps(payload, ensure_ascii=False)}\n")
     except OSError:
         pass
 
@@ -192,6 +208,7 @@ def run_hook() -> None:
         event = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
         return
+    log_event(event)
     if event.get("reason") not in RUN_REASONS:
         return
     session_id = event.get("session_id")
