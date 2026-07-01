@@ -14,7 +14,7 @@ LOG_PATH = Path.home() / ".claude" / "hooks-session-title.log"
 DEBUG_LOG_PATH = Path.home() / ".claude" / "hooks-session-title-debug.log"
 MAX_TITLE_CHARS = 100
 BRANCH_SKIP = {"master", "main"}
-RUN_REASONS = {"prompt_input_exit", "clear", "resume"}
+RUN_REASONS = {"prompt_input_exit", "clear", "resume", "other"}
 LEADING_TAG = re.compile(r"^\[[^\]]+\]\s+")
 TRAILING_STATS = re.compile(r"\s*\(\d+[hm]/\d+t/\d+f/\d+c\)\s*$")
 
