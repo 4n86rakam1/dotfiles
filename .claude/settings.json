@@ -74,6 +74,16 @@
           }
         ]
       }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.dotfiles/.claude/hooks/claude_notify.py"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
