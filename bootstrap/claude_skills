@@ -1,0 +1,7 @@
+#!/bin/bash -eux
+
+npx skills@latest add mattpocock/skills \
+    --skill grill-me \
+    --agent claude-code \
+    --global \
+    --yes
