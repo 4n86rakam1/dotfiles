@@ -53,6 +53,7 @@
       "Bash(wipefs*)"
     ]
   },
+  "model": "claude-opus-4-7",
   "hooks": {
     "PreToolUse": [
       {
@@ -61,6 +62,17 @@
           {
             "type": "command",
             "command": "python3 ~/.dotfiles/.claude/hooks/gh_api_readonly.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.dotfiles/.claude/hooks/formatter.py"
           }
         ]
       }
@@ -90,6 +102,10 @@
     "type": "command",
     "command": "python3 ~/.claude/statusline.py"
   },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true
+  },
   "language": "Japanese",
   "voice": {
     "enabled": true,
@@ -99,6 +115,5 @@
   "editorMode": "normal",
   "preferredNotifChannel": "auto",
   "autoCompactEnabled": true,
-  "agentPushNotifEnabled": false,
-  "model": "opus"
+  "agentPushNotifEnabled": false
 }
