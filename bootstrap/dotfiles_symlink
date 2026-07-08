@@ -17,6 +17,7 @@ dotfiles_list=(
     .markdownlint.yaml
     .claude/settings.json
     .claude/statusline.py
+    .claude/skills/memory-audit/
     .config/tabby/config.yaml
 )
 
