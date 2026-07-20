@@ -77,6 +77,16 @@
         ]
       }
     ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.dotfiles/.claude/hooks/memory_symlink.py"
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [
