@@ -27,6 +27,7 @@ COLOREND="\[\e[00m\]"
 RED="\[\e[0;31m\]"
 GREEN="\[\e[0;32m\]"
 YELLOW="\[\e[0;33m\]"
+CYAN="\[\e[0;36m\]"
 WHITE="\[\e[0;37m\]"
 
 function __my_parse_git_branch() {
@@ -41,8 +42,14 @@ function __my_parse_git_branch() {
 }
 
 function __my_custom_prompt() {
-    tail="${WHITE}›${COLOREND}"
-    PS1="${YELLOW}\w${COLOREND}$(__my_parse_git_branch) ${tail} "
+    local host_prefix="" tail
+    if [[ -n "${SSH_CONNECTION:-}" ]]; then
+        host_prefix="${CYAN}\h${COLOREND}:"
+        tail="${WHITE}\$${COLOREND}"
+    else
+        tail="${WHITE}›${COLOREND}"
+    fi
+    PS1="${host_prefix}${YELLOW}\w${COLOREND}$(__my_parse_git_branch) ${tail} "
 }
 
 __prompt_style="custom"
