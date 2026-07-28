@@ -1,0 +1,26 @@
+{
+  "filters": {
+    "comments": true
+  },
+  "rules": {
+    "preset-ja-technical-writing": {
+      "sentence-length": { "max": 120 },
+      "no-mix-dearu-desumasu": { "preferInDocument": "である" },
+      "max-kanji-continuous-len": false,
+      "ja-no-weak-phrase": false,
+      "no-exclamation-question-mark": false,
+
+      "no-doubled-joshi": false,
+      "ja-no-mixed-period": false,
+      "ja-no-successive-word": false,
+      "no-doubled-conjunction": false,
+      "max-ten": false,
+      "arabic-kanji-numbers": false
+    },
+    "@textlint-ja/preset-ai-writing": {
+      "no-ai-hype-expressions": false,
+      "ai-tech-writing-guideline": false
+    },
+    "prh": { "rulePaths": ["prh.yml"] }
+  }
+}

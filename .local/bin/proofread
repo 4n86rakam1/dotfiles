@@ -1,0 +1,333 @@
+#!/usr/bin/env python3
+"""文章を校正する。日本語は textlint、英語は Vale と LanguageTool へ振り分ける。
+
+リポジトリに依存せず、どのディレクトリのファイルでも校正できる。
+設定は ~/.config/proofread/、textlint の実体は ~/.local/share/proofread/ に置く。
+"""
+
+import argparse
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+CONFIG = Path.home() / ".config/proofread"
+TEXTLINT_HOME = Path.home() / ".local/share/proofread"
+LT_HOME = Path.home() / ".local/share/languagetool"
+
+RC_DEFAULT = CONFIG / "textlintrc.json"
+RC_CASUAL = CONFIG / "textlintrc.casual.json"
+VALE_CONFIG = CONFIG / "vale.ini"
+
+# 日記や回想は口語で書く。技術文書向けルールを当てると誤検出が支配的になる
+CASUAL_PARTS = ("diary", "misc", "journal")
+CASUAL_STEMS = ("recollection",)
+
+EN_SUFFIX = ".en.md"
+EN_PARTS = ("drafts/en", "en/drafts")
+
+# 日本語文字がこの割合を超えたら日本語として扱う
+JA_RATIO_THRESHOLD = 0.05
+JA_CHARS = re.compile(r"[ぁ-んァ-ヶ一-龠]")
+
+TEXT_SUFFIXES = (".md", ".txt", ".markdown")
+MESSAGE_MAX_LEN = 110
+HUNK_HEADER = re.compile(r"^@@ -\S+ \+(\d+)(?:,(\d+))? @@", re.MULTILINE)
+
+LT_LANG = "en-US"
+# コードや URL を空白へ潰す前処理が、空白・記号にまつわるルールを誤発火させるため落とす
+LT_DISABLED = (
+    "WHITESPACE_RULE,COMMA_PARENTHESIS_WHITESPACE,SENTENCE_WHITESPACE,EN_UNPAIRED_BRACKETS"
+)
+
+FENCE_PREFIXES = ("```", "~~~")
+INLINE_CODE = re.compile(r"`[^`]*`")
+URL = re.compile(r"https?://\S+")
+
+Finding = tuple[str, int, str, str]
+
+
+def display(path: Path) -> str:
+    try:
+        return str(path.relative_to(Path.cwd()))
+    except ValueError:
+        return str(path)
+
+
+def detect_language(text: str) -> str:
+    stripped = re.sub(r"\s", "", text)
+    if not stripped:
+        return "en"
+    ratio = len(JA_CHARS.findall(stripped)) / len(stripped)
+    return "ja" if ratio > JA_RATIO_THRESHOLD else "en"
+
+
+def looks_english(path: Path, text: str) -> bool:
+    posix = path.as_posix()
+    if posix.endswith(EN_SUFFIX) or any(part in posix for part in EN_PARTS):
+        return True
+    return detect_language(text) == "en"
+
+
+def looks_casual(path: Path) -> bool:
+    parts = {p.lower() for p in path.parts}
+    return bool(parts & set(CASUAL_PARTS)) or path.stem.lower() in CASUAL_STEMS
+
+
+def flatten(message: str) -> str:
+    text = " ".join(message.split())
+    if len(text) > MESSAGE_MAX_LEN:
+        text = text[:MESSAGE_MAX_LEN] + "…"
+    return text
+
+
+def git(repo: Path, *args: str) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(repo), *args], capture_output=True, text=True, check=False
+    )
+    return result.stdout
+
+
+def repo_root(path: Path) -> Path | None:
+    result = subprocess.run(
+        ["git", "-C", str(path.parent), "rev-parse", "--show-toplevel"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return Path(result.stdout.strip()) if result.returncode == 0 else None
+
+
+def changed_markdown() -> list[Path]:
+    root = repo_root(Path.cwd() / "_")
+    if root is None:
+        return []
+    paths = []
+    for line in git(root, "status", "--porcelain").splitlines():
+        name = line[3:].strip()
+        if " -> " in name:
+            name = name.split(" -> ", 1)[1]
+        if name.endswith(TEXT_SUFFIXES):
+            paths.append(root / name)
+    return paths
+
+
+def added_lines(path: Path) -> set[int] | None:
+    """HEAD 比で追加・変更された行番号。git 管理外や追跡外なら None (= 全行対象)。"""
+    root = repo_root(path)
+    if root is None:
+        return None
+    relpath = str(path.relative_to(root))
+    if not git(root, "ls-files", "--", relpath).strip():
+        return None
+    lines: set[int] = set()
+    for match in HUNK_HEADER.finditer(git(root, "diff", "-U0", "HEAD", "--", relpath)):
+        start = int(match.group(1))
+        count = int(match.group(2) or 1)
+        lines.update(range(start, start + count))
+    return lines
+
+
+def mask_markdown(text: str) -> str:
+    """コードブロック・インラインコード・URL を空白へ潰す。
+
+    LanguageTool は Markdown 構文を解さないため、そのまま渡すと記法が誤検出源になる。
+    行番号と文字位置を保つため、削除ではなく同じ長さの空白に置換する。
+    """
+    masked = []
+    in_fence = False
+    for line in text.split("\n"):
+        if line.lstrip().startswith(FENCE_PREFIXES):
+            in_fence = not in_fence
+            masked.append("")
+            continue
+        if in_fence:
+            masked.append("")
+            continue
+        line = INLINE_CODE.sub(lambda m: " " * len(m.group(0)), line)
+        line = URL.sub(lambda m: " " * len(m.group(0)), line)
+        masked.append(line)
+    return "\n".join(masked)
+
+
+def run_textlint(paths: list[Path], rc: Path) -> list[Finding]:
+    if not paths:
+        return []
+    textlint = TEXTLINT_HOME / "node_modules/.bin/textlint"
+    if not textlint.exists():
+        print(f"textlint not found under {TEXTLINT_HOME}", file=sys.stderr)
+        return []
+    result = subprocess.run(
+        [str(textlint), "--config", str(rc), "-f", "json", *[str(p) for p in paths]],
+        cwd=TEXTLINT_HOME,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if not result.stdout.strip():
+        if result.stderr.strip():
+            print(result.stderr.strip(), file=sys.stderr)
+        return []
+    findings = []
+    for entry in json.loads(result.stdout):
+        shown = display(Path(entry["filePath"]))
+        for msg in entry["messages"]:
+            findings.append(
+                (shown, msg["line"], msg.get("ruleId", "?"), flatten(msg["message"]))
+            )
+    return findings
+
+
+def run_vale(paths: list[Path]) -> list[Finding]:
+    if not paths:
+        return []
+    vale = shutil.which("vale") or str(Path.home() / ".local/bin/vale")
+    if not Path(vale).exists():
+        print("vale not found; skipped English style check", file=sys.stderr)
+        return []
+    result = subprocess.run(
+        [vale, "--config", str(VALE_CONFIG), "--output=JSON", *[str(p) for p in paths]],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if not result.stdout.strip():
+        if result.stderr.strip():
+            print(result.stderr.strip(), file=sys.stderr)
+        return []
+    findings = []
+    for path, alerts in json.loads(result.stdout).items():
+        shown = display(Path(path).resolve())
+        for alert in alerts:
+            findings.append(
+                (
+                    shown,
+                    alert["Line"],
+                    f"{alert['Check']} ({alert['Severity']})",
+                    flatten(alert["Message"]),
+                )
+            )
+    return findings
+
+
+def find_languagetool() -> Path | None:
+    jars = sorted(LT_HOME.glob("LanguageTool-*/languagetool-commandline.jar"))
+    return jars[-1] if jars else None
+
+
+def run_languagetool(paths: list[Path]) -> list[Finding]:
+    if not paths:
+        return []
+    jar = find_languagetool()
+    if jar is None:
+        print("languagetool not found; skipped grammar check", file=sys.stderr)
+        return []
+
+    findings = []
+    for path in paths:
+        masked = mask_markdown(path.read_text(encoding="utf-8"))
+        tmp = TEXTLINT_HOME / f".{path.name}.lt.tmp"
+        tmp.write_text(masked, encoding="utf-8")
+        try:
+            result = subprocess.run(
+                [
+                    "java",
+                    "-jar",
+                    str(jar),
+                    "-l",
+                    LT_LANG,
+                    "-c",
+                    "utf-8",
+                    "--disable",
+                    LT_DISABLED,
+                    "--json",
+                    str(tmp),
+                ],
+                cwd=jar.parent,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        finally:
+            tmp.unlink(missing_ok=True)
+        if not result.stdout.strip():
+            if result.stderr.strip():
+                print(result.stderr.strip(), file=sys.stderr)
+            continue
+        shown = display(path)
+        for match in json.loads(result.stdout).get("matches", []):
+            line = masked.count("\n", 0, match["offset"]) + 1
+            suggestions = [r["value"] for r in match.get("replacements", [])][:3]
+            message = match["message"]
+            if suggestions:
+                message += " → " + " / ".join(suggestions)
+            findings.append((shown, line, f"LT.{match['rule']['id']}", flatten(message)))
+    return findings
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "paths", nargs="*", help="対象ファイル (省略時は git 変更分のテキスト)"
+    )
+    parser.add_argument(
+        "--diff", action="store_true", help="HEAD 比で追加・変更された行の指摘だけを出す"
+    )
+    parser.add_argument("--en", action="store_true", help="英語として扱う")
+    parser.add_argument("--ja", action="store_true", help="日本語として扱う")
+    parser.add_argument(
+        "--casual", action="store_true", help="口語として扱い、文体ルールを緩める"
+    )
+    parser.add_argument(
+        "--strict", action="store_true", help="指摘があれば exit 1 を返す"
+    )
+    args = parser.parse_args()
+
+    targets = [Path(p).resolve() for p in args.paths] or changed_markdown()
+    targets = [p for p in targets if p.is_file()]
+    if not targets:
+        return 0
+
+    english: list[Path] = []
+    technical: list[Path] = []
+    casual: list[Path] = []
+    for path in targets:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        if args.en or (not args.ja and looks_english(path, text)):
+            english.append(path)
+        elif args.casual or looks_casual(path):
+            casual.append(path)
+        else:
+            technical.append(path)
+
+    findings = (
+        run_textlint(technical, RC_DEFAULT)
+        + run_textlint(casual, RC_CASUAL)
+        + run_vale(english)
+        + run_languagetool(english)
+    )
+
+    if args.diff:
+        allowed = {display(p): added_lines(p) for p in targets}
+
+        def in_diff(finding: Finding) -> bool:
+            lines = allowed.get(finding[0])
+            return lines is None or finding[1] in lines
+
+        findings = [f for f in findings if in_diff(f)]
+
+    if not findings:
+        return 0
+
+    for path, line, rule, message in sorted(findings, key=lambda f: (f[0], f[1])):
+        print(f"{path}:{line}  [{rule}]  {message}")
+    print(f"\n{len(findings)} 件の指摘", file=sys.stderr)
+
+    return 1 if args.strict else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

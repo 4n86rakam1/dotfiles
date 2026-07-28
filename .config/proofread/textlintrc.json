@@ -1,0 +1,16 @@
+{
+  "filters": {
+    "comments": true
+  },
+  "rules": {
+    "preset-ja-technical-writing": {
+      "sentence-length": { "max": 120 },
+      "no-mix-dearu-desumasu": { "preferInDocument": "である" },
+      "max-kanji-continuous-len": false,
+      "ja-no-weak-phrase": false,
+      "no-exclamation-question-mark": false
+    },
+    "@textlint-ja/preset-ai-writing": true,
+    "prh": { "rulePaths": ["prh.yml"] }
+  }
+}

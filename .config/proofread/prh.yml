@@ -1,0 +1,41 @@
+version: 1
+
+# ~/.claude/CLAUDE.md の日本語出力方針 (冗長表現の回避) を機械化したもの
+rules:
+  - expected: でき
+    pattern: /することができ/
+    specs:
+      - from: 確認することができる
+        to: 確認できる
+
+  - expected: について
+    pattern: /に関して/
+
+  - expected: を
+    pattern: /のことを/
+
+  - expected: のため
+    pattern: /であるため/
+
+  - expected: するため
+    pattern: /するためである/
+    specs:
+      - from: 検証するためである
+        to: 検証するため
+
+  # 敬語由来の冗長表現。直接表現へ書き換える
+  - expected: する
+    pattern: /していただく/
+
+  - expected: する
+    pattern: /させていただく/
+
+  # 冗長な接続・修飾
+  - expected: できる
+    pattern: /可能である/
+
+  - expected: のため
+    pattern: /のためには/
+    specs:
+      - from: 達成のためには
+        to: 達成のため

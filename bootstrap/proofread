@@ -1,0 +1,43 @@
+#!/bin/bash -eux
+
+# 校正ツール一式。設定は ~/.config/proofread/ に置き、dotfiles_symlink が symlink を張る。
+# 実体をホーム配下へ入れることで、リポジトリを問わず proofread コマンドが動く。
+
+proofread_home="${HOME}/.local/share/proofread"
+languagetool_home="${HOME}/.local/share/languagetool"
+bin_dir="${HOME}/.local/bin"
+
+mkdir -p "${proofread_home}" "${languagetool_home}" "${bin_dir}"
+
+# 日本語: textlint 一式
+cd "${proofread_home}"
+[[ -f package.json ]] || npm init -y > /dev/null
+npm install --silent \
+    textlint \
+    textlint-rule-preset-ja-technical-writing \
+    @textlint-ja/textlint-rule-preset-ai-writing \
+    textlint-rule-prh \
+    textlint-filter-rule-comments
+
+# 英語 (スタイル): Vale
+if ! command -v vale > /dev/null; then
+    vale_version="$(curl -sSL https://api.github.com/repos/errata-ai/vale/releases/latest \
+        | grep -oP '"tag_name":\s*"v\K[^"]+')"
+    tmp="$(mktemp -d)"
+    curl -sSL -o "${tmp}/vale.tar.gz" \
+        "https://github.com/errata-ai/vale/releases/download/v${vale_version}/vale_${vale_version}_Linux_64-bit.tar.gz"
+    tar xzf "${tmp}/vale.tar.gz" -C "${tmp}" vale
+    install -m 755 "${tmp}/vale" "${bin_dir}/vale"
+    rm -rf "${tmp}"
+fi
+
+# Vale のスタイルパッケージは設定ファイルの Packages 行から取得する
+"${bin_dir}/vale" --config "${HOME}/.config/proofread/vale.ini" sync
+
+# 英語 (文法): LanguageTool。Java 実行のため JRE が要る
+if ! compgen -G "${languagetool_home}/LanguageTool-*" > /dev/null; then
+    tmp="$(mktemp -d)"
+    curl -sSL -o "${tmp}/lt.zip" https://www.languagetool.org/download/LanguageTool-stable.zip
+    unzip -q "${tmp}/lt.zip" -d "${languagetool_home}"
+    rm -rf "${tmp}"
+fi

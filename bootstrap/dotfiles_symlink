@@ -18,7 +18,11 @@ dotfiles_list=(
     .claude/settings.json
     .claude/statusline.py
     .claude/skills/memory-audit/
+    .claude/skills/proofread-en/
+    .claude/skills/proofread-ja/
+    .config/proofread/
     .config/tabby/config.yaml
+    .local/bin/proofread
 )
 
 for dotfile in "${dotfiles_list[@]}"; do
