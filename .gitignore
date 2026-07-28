@@ -8,3 +8,6 @@ Brewfile.lock.json
 .docker/.token_seed
 .docker/.token_seed.lock
 .docker/buildx/
+
+.config/proofread/vale-styles/*/
+!.config/proofread/vale-styles/config/
