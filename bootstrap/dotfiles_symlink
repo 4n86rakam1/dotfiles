@@ -23,6 +23,19 @@ dotfiles_list=(
     .config/proofread/
     .config/tabby/config.yaml
     .local/bin/proofread
+    .claude/CLAUDE.md
+    .claude/rules/code-review.md
+    .claude/rules/code-style-general.md
+    .claude/rules/code-style-md.md
+    .claude/rules/code-style-sh.md
+    .claude/rules/formatter.md
+    .claude/rules/pr-creation.md
+    .claude/rules/response-format.md
+    .claude/rules/response-link.md
+    .claude/rules/response-style-ja.md
+    .claude/rules/review-hygiene.md
+    .claude/rules/skill-creation.md
+    .claude/rules/worktree-exit.md
 )
 
 for dotfile in "${dotfiles_list[@]}"; do
