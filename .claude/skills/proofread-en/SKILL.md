@@ -3,60 +3,61 @@ name: proofread-en
 description: 英語文章を公開前に校正する。文法・語法の誤りと、非ネイティブ特有の不自然な表現を指摘する。「英語を校正して」「proofread this」「この英文をチェック」「英文レビュー」で起動。
 ---
 
-# 英語校正
+# Proofread English
 
-## 原則
+## Principles
 
-- 黙って直さない。修正案には必ず理由を添える。書き手が同じ誤りを繰り返さないための指摘であり、体裁を整えるだけの作業ではない
-- 声を保つ。light edits に留め、書き手より「上手い」語彙や構文へ置き換えない
-- 読者は B2 レベルの技術者。難語・イディオム・凝った構文はむしろ減点
-- 断定できない箇所は候補を 2 案出し、ニュアンスの差を書く
+- Never fix silently. Every correction carries its reason. The point is to stop the writer repeating the mistake, not to tidy the surface.
+- Preserve the voice. Keep to light edits and never swap in vocabulary or syntax that is "better" than the writer's own.
+- The reader is a B2-level engineer. Rare words, idioms, and elaborate syntax count against the text.
+- Where you cannot be certain, offer two candidates and state the difference in nuance.
 
-## 1. 機械チェック
+## 1. Mechanical check
 
 ```bash
 proofread <path>
 ```
 
-Vale (Microsoft スタイル / proselint / write-good) と LanguageTool を実行する。英語かどうかは内容から自動判定するため、リポジトリやディレクトリを問わず使える。判定を外すときは `--en` を付ける。
+Runs Vale (Microsoft style / proselint / write-good) and LanguageTool. English is detected from the content, so this works in any repository or directory. Pass `--en` when the detection gets it wrong.
 
-検出できるもの: スペル、冗長表現、受動態、weasel word、見出しの大文字規則、主述の不一致、a/an、非可算名詞の複数形。
-検出できないもの: 文脈依存の冠詞の要否、前置詞の選択、時制の一貫性、意味の通らない文、直訳調の言い回し。
+Caught by the tools: spelling, wordiness, passive voice, weasel words, heading capitalization, subject-verb disagreement, a/an, plurals of uncountable nouns.
 
-後者がまさに非ネイティブの誤りの中心なので、機械チェックが 0 件でも以降のパスを必ず実施する。
+Missed by the tools: whether an article is needed in context, preposition choice, tense consistency, sentences that do not parse as meaning, and translated-sounding phrasing.
 
-## 2. Grammar パス
+That second list is exactly where non-native errors concentrate, so run every pass below even when the mechanical check reports nothing.
 
-意味を変えずに、誤りだけを直す。観点は次のとおり。
+## 2. Grammar pass
 
-- 主述の一致、時制の一貫性
-- 冠詞 (a / the / 無冠詞)、可算・不可算 (`equipment`, `software`, `research` など)
-- 前置詞の選択
-- 関係代名詞の制限用法・非制限用法。カンマの有無で意味が変わる
-- 単複、代名詞の照応
+Fix errors only, without changing meaning. Cover:
 
-## 3. Copyedit パス
+- Subject-verb agreement and tense consistency
+- Articles (a / the / zero) and countability (`equipment`, `software`, `research`)
+- Preposition choice
+- Restrictive vs non-restrictive relative clauses, where the comma changes the meaning
+- Number, and pronoun reference
 
-Grammar パスと混ぜない。誤りではないが読みにくい箇所を扱う。
+## 3. Copyedit pass
 
-- 受動態から能動態へ。動作主が自明でない場合は残す
-- 長文の分割
-- 弱い動詞 (`make`, `do`, `get`, `perform`) を具体的な動詞へ
-- filler word (`basically`, `actually`, `just`, `very`) の削除
-- 名詞化 (`utilization` → `use`) の解消
+Keep this separate from the grammar pass. Handle what is hard to read rather than wrong.
 
-## 4. 不自然さの指摘
+- Passive to active, except where the agent is not obvious
+- Split long sentences
+- Weak verbs (`make`, `do`, `get`, `perform`) into specific ones
+- Delete filler words (`basically`, `actually`, `just`, `very`)
+- Undo nominalizations (`utilization` into `use`)
 
-文法上は正しいが英語として不自然な表現を挙げる。これが最も価値の高い出力になる。
+## 4. Unnaturalness
 
-- 直訳調。日本語の語順や発想が残っている
-- コロケーションの誤り (`do a mistake` → `make a mistake`)
-- レジスタの不一致。技術文書に口語、あるいは過度に硬い表現
+Point out what is grammatical but does not read as English. This is the highest-value output.
 
-## 出力形式
+- Translated phrasing, where Japanese word order or framing survives
+- Collocation errors (`do a mistake` into `make a mistake`)
+- Register mismatch: colloquial in a technical document, or needlessly stiff
 
-パスごとに分け、指摘ごとに行番号・原文・修正案・理由の 4 点を書く。最後に、繰り返し現れた誤りの傾向を 2〜3 行でまとめる。個別の修正より傾向の把握が次に効く。
+## Output format
 
-## 参考
+Separate the passes, and give four things per finding: line number, original text, correction, reason. Close with two or three lines on the error patterns that recurred. Recognizing the pattern helps more next time than any single fix.
 
-非ネイティブによる LLM 校正の実践記録: <https://vincent.bernat.ch/en/blog/2026-blogging-llm>
+## Reference
+
+A non-native writer's account of proofreading with an LLM: <https://vincent.bernat.ch/en/blog/2026-blogging-llm>
