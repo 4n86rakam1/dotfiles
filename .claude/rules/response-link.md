@@ -1,5 +1,5 @@
-# レスポンス内のリンク
+# Links in Responses
 
-リンクは Markdown 形式 (`[text](url)`) を使わず、生の URL をそのまま書く。説明が要る場合は「説明: URL」の形で URL を独立させる。画像は対象外。
+Write raw URLs instead of Markdown links (`[text](url)`). When a URL needs explanation, keep the URL on its own: "explanation: URL". Images are exempt.
 
-ファイルへ書き込む Markdown はこの規則の対象外。`~/.claude/rules/code-style-md.md` の MD034 に従い、`[text](url)` または autolink `<url>` を使う。
+Markdown written to a file is exempt from this rule. There, follow MD034 in `~/.claude/rules/code-style-md.md` and use `[text](url)` or an autolink `<url>`.

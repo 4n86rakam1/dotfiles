@@ -1,5 +1,5 @@
-# スキル作成
+# Skill Creation
 
-スキルを作成する際は `.claude/commands/` ではなく `.claude/skills/<name>/SKILL.md` を使う。
+Create a skill as `.claude/skills/<name>/SKILL.md`, not `.claude/commands/`.
 
-副作用のある操作（commit, deploy, send 等）には `disable-model-invocation: true` を付ける。
+Add `disable-model-invocation: true` to any skill with side effects (commit, deploy, send, and the like).

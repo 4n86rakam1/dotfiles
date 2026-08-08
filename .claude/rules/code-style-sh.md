@@ -5,11 +5,11 @@ paths:
 
 # Bash Script
 
-Google Shell Style Guide に従う。
+Follow the Google Shell Style Guide.
 
 - Shebang: `#!/bin/bash`
-- 定数: `readonly UPPER_SNAKE_CASE`
-- ローカル変数: `local lower_snake_case`
-- 関数名: `lower_snake_case`
-- 条件式: `[[ ]]`
-- 処理は関数に分割し末尾に `main "$@"`
+- Constants: `readonly UPPER_SNAKE_CASE`
+- Local variables: `local lower_snake_case`
+- Function names: `lower_snake_case`
+- Conditionals: `[[ ]]`
+- Split the work into functions and end the file with `main "$@"`

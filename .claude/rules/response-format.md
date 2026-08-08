@@ -1,3 +1,3 @@
-# レスポンス形式
+# Response Format
 
-コード修正時は変更内容をレスポンスへ出力しない。
+Do not reproduce the changed code in your response when modifying code.

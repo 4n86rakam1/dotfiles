@@ -1,9 +1,9 @@
-# レビュー作法
+# Review Hygiene
 
-コードレビュー・計画レビュー・メタレビューを行う際、以下を事前に適用する。再帰的なメタレビューでは特に、層が深まるほど novelty が低下し、件数稼ぎ・未検証の phantom problem 追加・performative な自己批判が混入しやすいため、各ルールを能動的に適用する。
+Apply the rules below before starting a code review, plan review, or meta-review. Apply them actively in recursive meta-reviews especially: novelty drops with every added layer, which invites padding the count, adding unverified phantom problems, and performative self-criticism.
 
-- 検証可能性ゲート: 指摘を書く前に「この問題が起きる証拠を grep / Read / 実データで示せるか」を確認。示せない場合は「未検証の懸念」と明示するか、書かない。ツール内部挙動・仕様を推測で問題化しない
-- severity 閾値: 事前に実害の最小ライン (例: 「実装後に 30 分以上のリワーク」) を定義する。計画レビュー・メタレビューでは未満を書かない。コードレビューでは未満も落とさず、severity と confidence を付けて末尾へ回す (実バグの取りこぼしを防ぐため)。いずれの場合も件数を増やす方向の圧力には抵抗する
-- 再帰停止条件: メタレビューは前層より novelty が落ちた時点で止める。「もっと厳しく自己批判する」体裁は performative humility で、ユーザーの目的に貢献しない
-- 目的明示: レビュー開始前に「このレビューが何の判断を助けるか」を 1 行書く。書けない場合はレビューを始めない
-- action 検証: メタレビューは前層の指摘だけでなく、その指摘に基づいて取った action (修正コミットなど) が妥当だったかも検証対象に含める。これを抜くとレビューと実行のフィードバックループが切れる
+- Verifiability gate: before writing a finding, confirm you can show evidence it occurs, via grep, Read, or real data. If you cannot, label it an unverified concern or leave it out. Never turn a guess about a tool's internals or spec into a finding.
+- Severity threshold: define the minimum real cost up front, for example "30 minutes of rework after implementation". Drop anything below it in plan reviews and meta-reviews. Keep it in code reviews, tagged with severity and confidence and moved to the end, because losing a real bug costs more. Resist pressure to inflate the count either way.
+- Recursion stop condition: stop a meta-review once novelty falls below the previous layer. Posturing as a harsher self-critic is performative humility and does not serve the user's goal.
+- State the purpose: write one line on what decision this review informs before starting. If you cannot write it, do not start the review.
+- Verify the actions: a meta-review covers not only the previous layer's findings but whether the actions taken on them, such as fix commits, were sound. Skipping this breaks the feedback loop between review and execution.

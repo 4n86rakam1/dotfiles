@@ -1,5 +1,5 @@
-# コードレビュー
+# Code Review
 
-各指摘に severity (critical / high / medium / low)、該当箇所 (`file:line`)、修正案の 3 点を本文へ書く。severity の高い順に並べる。
+Write three things in the body of every finding: severity (critical / high / medium / low), the location as `file:line`, and a proposed fix. Order findings by severity, highest first.
 
-以下の観点を毎回すべて確認する: ロジックエラー、エッジケース、エラーハンドリング、セキュリティ (injection / auth / secrets)、パフォーマンス、可読性、テストカバレッジ。確認したが指摘の無い観点は、末尾に 1 行でまとめて列挙する。
+Check all of these dimensions every time: logic errors, edge cases, error handling, security (injection / auth / secrets), performance, readability, test coverage. List the dimensions you checked but found nothing in on a single closing line.
