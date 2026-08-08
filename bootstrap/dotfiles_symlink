@@ -20,6 +20,7 @@ dotfiles_list=(
     .claude/skills/memory-audit/
     .claude/skills/proofread-en/
     .claude/skills/proofread-ja/
+    .claude/skills/spec/
     .config/proofread/
     .config/tabby/config.yaml
     .local/bin/proofread
