@@ -18,6 +18,7 @@ dotfiles_list=(
     .claude/settings.json
     .claude/statusline.py
     .claude/skills/memory-audit/
+    .claude/skills/memory-sweep/
     .claude/skills/proofread-en/
     .claude/skills/proofread-ja/
     .claude/skills/spec/
