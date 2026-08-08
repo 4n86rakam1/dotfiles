@@ -24,21 +24,19 @@ dotfiles_list=(
     .config/tabby/config.yaml
     .local/bin/proofread
     .claude/CLAUDE.md
-    .claude/rules/code-review.md
-    .claude/rules/code-style-general.md
-    .claude/rules/code-style-md.md
-    .claude/rules/code-style-sh.md
-    .claude/rules/formatter.md
-    .claude/rules/pr-creation.md
-    .claude/rules/response-format.md
-    .claude/rules/response-link.md
-    .claude/rules/response-style-ja.md
-    .claude/rules/review-hygiene.md
-    .claude/rules/skill-creation.md
-    .claude/rules/worktree-exit.md
+    .claude/rules/
 )
 
 for dotfile in "${dotfiles_list[@]}"; do
-    mkdir -p "$(dirname "${HOME}/${dotfile%/}")"
-    ln -sfn "${dotfiles_root_directory}/${dotfile}" "${HOME}/${dotfile%/}"
+    target="${HOME}/${dotfile%/}"
+
+    # ln -sfn links inside a real directory instead of replacing it, and exits 0
+    # doing so. Refuse rather than leave a nested link the caller never sees.
+    if [[ -d "${target}" && ! -L "${target}" ]]; then
+        echo "${target} is a real directory; remove it before linking" >&2
+        exit 1
+    fi
+
+    mkdir -p "$(dirname "${target}")"
+    ln -sfn "${dotfiles_root_directory}/${dotfile}" "${target}"
 done
