@@ -139,5 +139,6 @@
   "editorMode": "normal",
   "preferredNotifChannel": "auto",
   "autoCompactEnabled": true,
+  "remoteControlAtStartup": false,
   "agentPushNotifEnabled": false
 }
