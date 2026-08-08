@@ -12,7 +12,61 @@ WRITE_METHOD_RE = re.compile(
 )
 
 
+# Unquoted separators that end one command in a list/pipeline. Splitting on these
+# keeps a downstream `awk -F,` or `git commit -F` from being read as gh's own flag.
+SEPARATORS = "|&;\n<>"
+GH_API_RE = re.compile(r"\bgh\s+api\b")
+
+
+def split_unquoted(command: str) -> list[str]:
+    """Split on shell separators outside quotes. Raises on unbalanced quotes."""
+    segments: list[str] = []
+    buf: list[str] = []
+    quote: str | None = None
+    escaped = False
+    for char in command:
+        if escaped:
+            buf.append(char)
+            escaped = False
+        # Backslash is literal inside single quotes.
+        elif char == "\\" and quote != "'":
+            buf.append(char)
+            escaped = True
+        elif quote:
+            if char == quote:
+                quote = None
+            buf.append(char)
+        elif char in "'\"":
+            quote = char
+            buf.append(char)
+        elif char in SEPARATORS:
+            segments.append("".join(buf))
+            buf = []
+        else:
+            buf.append(char)
+    if quote:
+        raise ValueError("unbalanced quote")
+    segments.append("".join(buf))
+    return segments
+
+
 def detect_write_method(command: str) -> str | None:
+    try:
+        segments = split_unquoted(command)
+    except ValueError:
+        # Segmentation is unreliable, so fall back to scanning everything. This
+        # over-denies, but never lets a write slip past.
+        segments = [command]
+    for segment in segments:
+        if not GH_API_RE.search(segment):
+            continue
+        found = detect_in_segment(segment)
+        if found:
+            return found
+    return None
+
+
+def detect_in_segment(command: str) -> str | None:
     match = WRITE_METHOD_RE.search(command)
     if match:
         return match.group("method").upper()
