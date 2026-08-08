@@ -122,6 +122,12 @@
         "source": "github",
         "repo": "tomasz-tomczyk/crit"
       }
+    },
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
     }
   },
   "language": "Japanese",
