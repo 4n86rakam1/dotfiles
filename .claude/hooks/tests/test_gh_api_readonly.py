@@ -51,6 +51,15 @@ class AllowsReadOnly(unittest.TestCase):
     def test_non_gh_command_upstream(self):
         self.assertAllowed("cat data.csv | awk -F, '{print}' ; gh api repos/o/r")
 
+    def test_wrapping_command_flags_are_not_ghs(self):
+        self.assertAllowed("curl -X POST https://x/$(gh api repos/o/r --jq .url)")
+
+    def test_flag_inside_trailing_comment(self):
+        self.assertAllowed("gh api repos/o/r --jq '.description' # use -f later")
+
+    def test_quoted_mention_is_not_an_invocation(self):
+        self.assertAllowed('git commit -m "call gh api with -F later"')
+
 
 class DeniesWrites(unittest.TestCase):
     def assertDenied(self, command: str) -> None:
@@ -95,6 +104,36 @@ class DeniesWrites(unittest.TestCase):
 
     def test_unbalanced_quotes_fall_back_to_whole_command_scan(self):
         self.assertDenied("gh api repos/o/r -f 'unterminated")
+
+    def test_double_space_between_gh_and_api(self):
+        self.assertDenied("gh  api -X POST repos/o/r/issues")
+
+    def test_tab_between_gh_and_api(self):
+        self.assertDenied("gh\tapi -X POST repos/o/r/issues")
+
+    def test_line_continuation_between_gh_and_api(self):
+        self.assertDenied("gh \\\n  api -X POST repos/o/r/issues")
+
+    def test_single_quoted_method_value(self):
+        self.assertDenied("gh api -X 'POST' repos/o/r/issues")
+
+    def test_double_quoted_method_value(self):
+        self.assertDenied('gh api -X "POST" repos/o/r/issues')
+
+    def test_long_method_flag_with_quoted_value(self):
+        self.assertDenied("gh api --method='POST' repos/o/r")
+
+    def test_method_flag_with_equals_and_no_space(self):
+        self.assertDenied("gh api -X=POST repos/o/r")
+
+    def test_quoted_method_value_after_the_path(self):
+        self.assertDenied("gh api repos/o/r -X 'DELETE'")
+
+    def test_write_inside_command_substitution(self):
+        self.assertDenied("echo $(gh api -X POST repos/o/r)")
+
+    def test_ansi_c_quoted_method_value(self):
+        self.assertDenied("gh api -X$'POST' repos/o/r")
 
 
 if __name__ == "__main__":
