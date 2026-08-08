@@ -20,4 +20,5 @@ __pycache__/
 
 .claude/settings.local.json
 .claude/worktrees
+.claude/memory
 CLAUDE.local.md
