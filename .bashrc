@@ -84,7 +84,7 @@ export LESS="-asXFMMRqix8 --mouse --wheel-lines=3"
 export PATH="$HOME/.local/bin:$PATH"
 
 # Added by LM Studio CLI tool (lms)
-export PATH="$PATH:/home/maya/.lmstudio/bin"
+export PATH="$PATH:$HOME/.lmstudio/bin"
 
 export BROWSER='/mnt/c/Program Files/Google/Chrome/Application/chrome.exe'
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"

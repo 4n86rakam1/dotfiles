@@ -6,11 +6,11 @@
 
 ## 曖昧な指示への対応
 
-Prompt から対象・完了条件・制約のいずれも読み取れない場合、まず最重要の 1 点を 1 行質問で確認する (skill は起動しない)。曖昧さ解消後、中規模以上のタスク (複数ファイル変更、新規機能設計、調査結果に依存する判断) では `superpowers:brainstorming` を起動する。`grilling` skill は maya が明示的に起動要求した時のみ使う。
+Prompt から対象・完了条件・制約のいずれも読み取れない場合、まず最重要の 1 点を 1 行質問で確認する (skill は起動しない)。曖昧さ解消後、中規模以上のタスク (複数ファイル変更、新規機能設計、調査結果に依存する判断) では `superpowers:brainstorming` を起動する。`grilling` skill はユーザーが明示的に起動要求した時のみ使う。
 
 ## ルール違反指摘の記録
 
-CLAUDE.md および `~/.claude/rules/*.md` 由来のルール違反を認識した場合、maya が trigger 語による指示を出したときのみ `~/.claude/logs/claude-md-observations.md` へ追記する。自動追記はしない。
+CLAUDE.md および `~/.claude/rules/*.md` 由来のルール違反を認識した場合、ユーザーが trigger 語による指示を出したときのみ `~/.claude/logs/claude-md-observations.md` へ追記する。自動追記はしない。
 
 Trigger 語 (いずれも同義): `違反ログ追記` (主要) / `違反ログ` / `違反追記` / `obs-log` / `ログして`
 
