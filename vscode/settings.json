@@ -83,7 +83,7 @@
   "window.zoomLevel": -0.5,
 
   "keyboard.dispatch": "keyCode",
-  "extensions.autoUpdate": "onlyEnabledExtensions",
+  "extensions.autoUpdate": "on",
   "go.toolsManagement.autoUpdate": true,
 
   "gitlens.codeLens.authors.enabled": false,
@@ -95,4 +95,5 @@
   "claudeCode.preferredLocation": "panel",
   "claudeCode.useTerminal": true,
   "editor.fontFamily": "Hack, Noto Sans Mono CJK JP",
+  "workbench.secondarySideBar.defaultVisibility": "hidden",
 }
