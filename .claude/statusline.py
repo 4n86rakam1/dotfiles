@@ -14,7 +14,6 @@ GREEN = "\033[32m"
 YELLOW = "\033[33m"
 RED = "\033[31m"
 BLUE = "\033[34m"
-MAGENTA = "\033[35m"
 DIM = "\033[2m"
 
 USAGE_PCT_CRITICAL = 85
@@ -36,6 +35,7 @@ WIDE_EAST_ASIAN = ("W", "F")
 _GIT = shutil.which("git")
 _ANSI_RE = re.compile(r"\033\[[0-9;]*m")
 _CONTEXT_SIZE_RE = re.compile(r"\((\d+[KM]) context\)")
+_MODEL_FAMILY_RE = re.compile(r"^([A-Z])[a-z]+ ")
 
 
 def display_width(text):
@@ -139,10 +139,11 @@ def fmt_model(data):
     model = data.get("model") or {}
     name = model.get("display_name") or model.get("id") or "unknown"
     name = _CONTEXT_SIZE_RE.sub(r"\1", name.replace("Claude ", ""))
-    text = f"{CYAN} {name}"
+    name = _MODEL_FAMILY_RE.sub(r"\1", name)
+    text = f"{DIM} {name}"
     level = ((data.get("effort") or {}).get("level") or "").strip()
     if level:
-        text += f"{DIM}·{level}{CYAN}"
+        text += f"·{level}"
     if data.get("fast_mode"):
         text += " ⚡"
     return text + RESET
@@ -153,13 +154,6 @@ def fmt_agent(data):
     if not name:
         return None
     return f"{YELLOW}▸ {name}{RESET}"
-
-
-def fmt_session(data):
-    name = (data.get("session_name") or "").strip()
-    if not name:
-        return None
-    return f"{MAGENTA} {name}{RESET}"
 
 
 def fmt_context(ctx):
@@ -256,24 +250,21 @@ def main():
     rate_limits = data.get("rate_limits") or {}
     width = terminal_width()
 
-    place = [
-        (1, fmt_model(data)),
-        (4, fmt_agent(data)),
-        (3, fmt_session(data)),
-        (0, fmt_vcs(data)),
-        (2, fmt_location(data)),
-    ]
-    metrics = [
+    # 表示順はこの並び、幅が足りないときは第 1 要素の大きいものから捨てる
+    segments = [
+        (5, fmt_model(data)),
+        (2, fmt_agent(data)),
+        (1, fmt_vcs(data)),
+        (3, fmt_location(data)),
         (0, fmt_context(ctx)),
-        (3, fmt_tokens_part(ctx)),
-        (1, fmt_rate_window(rate_limits.get("five_hour"), "5h")),
-        (4, fmt_rate_window(rate_limits.get("seven_day"), "7d")),
-        (2, fmt_meta(data.get("cost") or {})),
+        (8, fmt_tokens_part(ctx)),
+        (4, fmt_rate_window(rate_limits.get("five_hour"), "5h")),
+        (7, fmt_rate_window(rate_limits.get("seven_day"), "7d")),
+        (6, fmt_meta(data.get("cost") or {})),
     ]
 
-    for segments in (place, metrics):
-        if line := fit(segments, width):
-            print(line)
+    if line := fit(segments, width):
+        print(line)
 
 
 if __name__ == "__main__":
