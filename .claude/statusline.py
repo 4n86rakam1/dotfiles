@@ -1,7 +1,10 @@
 import json
+import os
+import re
 import shutil
 import subprocess
 import sys
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,8 +21,49 @@ USAGE_PCT_CRITICAL = 85
 USAGE_PCT_WARNING = 60
 TOKENS_PER_K = 1000
 SECONDS_PER_MINUTE = 60
+MINUTES_PER_HOUR = 60
+HOURS_PER_DAY = 24
+MS_PER_SECOND = 1000
+
+SEPARATOR = " | "
+PATH_MAX_WIDTH = 32
+WORKTREE_BRANCH_PREFIX = "worktree-"
+PATH_TAIL_DEPTH = 2
+FALLBACK_COLUMNS = 120
+RIGHT_MARGIN = 2
+WIDE_EAST_ASIAN = ("W", "F")
 
 _GIT = shutil.which("git")
+_ANSI_RE = re.compile(r"\033\[[0-9;]*m")
+_CONTEXT_SIZE_RE = re.compile(r"\((\d+[KM]) context\)")
+
+
+def display_width(text):
+    plain = _ANSI_RE.sub("", text)
+    return sum(
+        2 if unicodedata.east_asian_width(c) in WIDE_EAST_ASIAN else 1 for c in plain
+    )
+
+
+def terminal_width():
+    # stdout が Claude Code に捕捉されるため ioctl や tput では幅を取れない
+    try:
+        return int(os.environ["COLUMNS"]) - RIGHT_MARGIN
+    except (KeyError, ValueError):
+        return FALLBACK_COLUMNS
+
+
+def line_width(segments):
+    texts = [text for _, text in segments]
+    return sum(map(display_width, texts)) + len(SEPARATOR) * (len(texts) - 1)
+
+
+def fit(segments, width):
+    """(優先度, 文字列) の並びを幅に収める。数値の大きい優先度から捨てる。"""
+    kept = [seg for seg in segments if seg[1]]
+    while len(kept) > 1 and line_width(kept) > width:
+        kept.remove(max(kept, key=lambda seg: seg[0]))
+    return SEPARATOR.join(text for _, text in kept)
 
 
 def usage_color(used_pct):
@@ -48,24 +92,35 @@ def fmt_countdown(epoch):
         return None
     remaining = max(0, epoch - datetime.now(timezone.utc).timestamp())
     total_m = int(remaining // SECONDS_PER_MINUTE)
-    h = total_m // SECONDS_PER_MINUTE
-    m = total_m % SECONDS_PER_MINUTE
+    h, m = divmod(total_m, MINUTES_PER_HOUR)
+    if h >= HOURS_PER_DAY:
+        d, h = divmod(h, HOURS_PER_DAY)
+        return f"{d}d{h}h"
     return f"{h}h{m:02d}m" if h > 0 else f"{m}m"
 
 
 def fmt_elapsed(ms):
     if not ms:
         return None
-    total_s = ms // 1000
+    total_s = ms // MS_PER_SECOND
     if total_s < SECONDS_PER_MINUTE:
         return f"{total_s}s"
     minutes = total_s // SECONDS_PER_MINUTE
     seconds = total_s % SECONDS_PER_MINUTE
-    if minutes < SECONDS_PER_MINUTE:
+    if minutes < MINUTES_PER_HOUR:
         return f"{minutes}m{seconds:02d}s"
-    hours = minutes // SECONDS_PER_MINUTE
-    remaining_minutes = minutes % SECONDS_PER_MINUTE
+    hours = minutes // MINUTES_PER_HOUR
+    remaining_minutes = minutes % MINUTES_PER_HOUR
     return f"{hours}h{remaining_minutes:02d}m"
+
+
+def elide_path(text):
+    if display_width(text) <= PATH_MAX_WIDTH:
+        return text
+    parts = text.split("/")
+    if len(parts) <= PATH_TAIL_DEPTH + 1:
+        return text
+    return "/".join([parts[0], "…", *parts[-PATH_TAIL_DEPTH:]])
 
 
 def shorten_path(path):
@@ -75,14 +130,36 @@ def shorten_path(path):
     home = Path.home()
     try:
         rel = p.relative_to(home)
-        return "~" if str(rel) == "." else f"~/{rel}"
     except ValueError:
-        return path
+        return elide_path(path)
+    return "~" if str(rel) == "." else elide_path(f"~/{rel}")
 
 
-def fmt_model(model_obj):
-    name = model_obj.get("display_name") or model_obj.get("id") or "unknown"
-    return f"{CYAN} {name.replace('Claude ', '')}{RESET}"
+def fmt_model(data):
+    model = data.get("model") or {}
+    name = model.get("display_name") or model.get("id") or "unknown"
+    name = _CONTEXT_SIZE_RE.sub(r"\1", name.replace("Claude ", ""))
+    text = f"{CYAN} {name}"
+    level = ((data.get("effort") or {}).get("level") or "").strip()
+    if level:
+        text += f"{DIM}·{level}{CYAN}"
+    if data.get("fast_mode"):
+        text += " ⚡"
+    return text + RESET
+
+
+def fmt_agent(data):
+    name = ((data.get("agent") or {}).get("name") or "").strip()
+    if not name:
+        return None
+    return f"{YELLOW}▸ {name}{RESET}"
+
+
+def fmt_session(data):
+    name = (data.get("session_name") or "").strip()
+    if not name:
+        return None
+    return f"{MAGENTA} {name}{RESET}"
 
 
 def fmt_context(ctx):
@@ -107,13 +184,9 @@ def fmt_rate_window(window_data, label):
     if (raw := window_data.get("used_percentage")) is None:
         return None
     used_pct = float(raw)
-    remaining_pct = 100.0 - used_pct
     countdown = fmt_countdown(window_data.get("resets_at"))
     reset_str = f" →{DIM}{countdown}{RESET}" if countdown else ""
-    bar = (
-        f"{usage_color(used_pct)}{progress_bar(used_pct)}"
-        f" {label}: {remaining_pct:.0f}%{RESET}"
-    )
+    bar = f"{usage_color(used_pct)}{progress_bar(used_pct)} {label}:{used_pct:.0f}%{RESET}"
     return bar + reset_str
 
 
@@ -134,77 +207,73 @@ def fmt_meta(cost):
     return f"{DIM}{'  '.join(items)}{RESET}"
 
 
-def fmt_git(cwd):
-    if _GIT is None:
+def git_output(cwd, args):
+    if _GIT is None or not cwd:
         return None
     try:
-        branch = (
+        return (
             subprocess.check_output(
-                [_GIT, "rev-parse", "--abbrev-ref", "HEAD"],
+                [_GIT, "--no-optional-locks", *args],
                 stderr=subprocess.DEVNULL,
                 cwd=cwd,
             )
             .decode()
             .strip()
         )
-        if not branch or branch == "HEAD":
-            return None
-        dirty = bool(
-            subprocess.check_output(
-                [_GIT, "--no-optional-locks", "status", "--porcelain"],
-                stderr=subprocess.DEVNULL,
-                cwd=cwd,
-            )
-            .decode()
-            .strip(),
-        )
-        marker = f"{YELLOW}*{GREEN}" if dirty else ""
     except (subprocess.CalledProcessError, OSError):
         return None
-    else:
-        return f"{GREEN} {branch}{marker}{RESET}"
+
+
+def fmt_vcs(data):
+    cwd = data.get("cwd") or ""
+    worktree_name = ((data.get("worktree") or {}).get("name") or "").strip()
+    marker = f"{YELLOW}*{GREEN}" if git_output(cwd, ["status", "--porcelain"]) else ""
+    if worktree_name:
+        branch = ((data.get("worktree") or {}).get("branch") or "").strip()
+        # EnterWorktree は worktree-<name> を切るので、その分だけ併記しても情報が増えない
+        derived = (worktree_name, f"{WORKTREE_BRANCH_PREFIX}{worktree_name}")
+        suffix = f" {branch}" if branch and branch not in derived else ""
+        return f"{GREEN}⎇ {worktree_name}{marker}{suffix}{RESET}"
+    branch = git_output(cwd, ["rev-parse", "--abbrev-ref", "HEAD"])
+    if not branch or branch == "HEAD":
+        return None
+    return f"{GREEN} {branch}{marker}{RESET}"
+
+
+def fmt_location(data):
+    # worktree 配下の実パスより、元リポジトリの位置のほうが手掛かりになる
+    base = (data.get("worktree") or {}).get("original_cwd") or data.get("cwd") or ""
+    return f"{BLUE} {shorten_path(base)}{RESET}"
 
 
 def main():
-    data = json.loads(sys.stdin.read())
+    try:
+        data = json.loads(sys.stdin.read())
+    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
+        data = {}
 
-    cwd = data.get("cwd", "")
     ctx = data.get("context_window") or {}
     rate_limits = data.get("rate_limits") or {}
+    width = terminal_width()
 
-    parts = [fmt_model(data.get("model") or {})]
+    place = [
+        (1, fmt_model(data)),
+        (4, fmt_agent(data)),
+        (3, fmt_session(data)),
+        (0, fmt_vcs(data)),
+        (2, fmt_location(data)),
+    ]
+    metrics = [
+        (0, fmt_context(ctx)),
+        (3, fmt_tokens_part(ctx)),
+        (1, fmt_rate_window(rate_limits.get("five_hour"), "5h")),
+        (4, fmt_rate_window(rate_limits.get("seven_day"), "7d")),
+        (2, fmt_meta(data.get("cost") or {})),
+    ]
 
-    session_name = (data.get("session_name") or "").strip()
-    if session_name:
-        parts.append(f"{MAGENTA} {session_name}{RESET}")
-
-    parts.append(fmt_context(ctx))
-
-    tok_part = fmt_tokens_part(ctx)
-    if tok_part:
-        parts.append(tok_part)
-
-    parts.extend(
-        filter(
-            None,
-            [
-                fmt_rate_window(rate_limits.get("five_hour"), "5h"),
-                fmt_rate_window(rate_limits.get("seven_day"), "7d"),
-            ],
-        ),
-    )
-
-    meta = fmt_meta(data.get("cost") or {})
-    if meta:
-        parts.append(meta)
-
-    git_part = fmt_git(cwd)
-    if git_part:
-        parts.append(git_part)
-
-    parts.append(f"{BLUE} {shorten_path(cwd)}{RESET}")
-
-    print(" | ".join(parts))
+    for segments in (place, metrics):
+        if line := fit(segments, width):
+            print(line)
 
 
 if __name__ == "__main__":
