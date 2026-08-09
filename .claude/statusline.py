@@ -19,6 +19,8 @@ DIM = "\033[2m"
 USAGE_PCT_CRITICAL = 85
 USAGE_PCT_WARNING = 60
 TOKENS_PER_K = 1000
+TOKENS_PER_M = 1_000_000
+TOKENS_DROP_FRACTION_ABOVE = 100_000
 SECONDS_PER_MINUTE = 60
 MINUTES_PER_HOUR = 60
 HOURS_PER_DAY = 24
@@ -82,6 +84,8 @@ def progress_bar(used_pct, width=8):
 def fmt_tokens(n):
     if n is None:
         return "--"
+    if n >= TOKENS_DROP_FRACTION_ABOVE:
+        return f"{n // TOKENS_PER_K}k"
     if n >= TOKENS_PER_K:
         return f"{n / TOKENS_PER_K:.1f}k"
     return str(n)
@@ -156,20 +160,23 @@ def fmt_agent(data):
     return f"{YELLOW}▸ {name}{RESET}"
 
 
+def fmt_window_size(n):
+    if n >= TOKENS_PER_M:
+        return f"{n / TOKENS_PER_M:g}M"
+    return f"{n // TOKENS_PER_K}k"
+
+
 def fmt_context(ctx):
     used = ctx.get("used_percentage")
     if used is None:
         return f"{DIM}ctx:--{RESET}"
-    color = usage_color(used)
-    return f"{color}ctx:{progress_bar(used)} {used:.0f}%{RESET}"
-
-
-def fmt_tokens_part(ctx):
-    tok_in = ctx.get("total_input_tokens")
-    tok_out = ctx.get("total_output_tokens")
-    if tok_in is None and tok_out is None:
-        return None
-    return f"{DIM}↑{fmt_tokens(tok_in)} ↓{fmt_tokens(tok_out)}{RESET}"
+    text = f"{usage_color(used)}ctx:{progress_bar(used)} {used:.0f}%"
+    # 同じ % でも 1M と 200K では絶対量が 5 倍違う
+    if (tokens := ctx.get("total_input_tokens")) is not None:
+        size = ctx.get("context_window_size")
+        limit = f"/{fmt_window_size(size)}" if size else ""
+        text += f"{DIM} {fmt_tokens(tokens)}{limit}"
+    return text + RESET
 
 
 def fmt_rate_window(window_data, label):
@@ -257,7 +264,6 @@ def main():
         (1, fmt_vcs(data)),
         (3, fmt_location(data)),
         (0, fmt_context(ctx)),
-        (8, fmt_tokens_part(ctx)),
         (4, fmt_rate_window(rate_limits.get("five_hour"), "5h")),
         (7, fmt_rate_window(rate_limits.get("seven_day"), "7d")),
         (6, fmt_meta(data.get("cost") or {})),
