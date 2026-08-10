@@ -59,15 +59,24 @@ hotkeys:
   disconnect-tab: []
   explode-tab: []
   combine-tabs: []
-  tab-1: []
-  tab-2: []
-  tab-3: []
-  tab-4: []
-  tab-5: []
-  tab-6: []
-  tab-7: []
-  tab-8: []
-  tab-9: []
+  tab-1:
+    - Alt-1
+  tab-2:
+    - Alt-2
+  tab-3:
+    - Alt-3
+  tab-4:
+    - Alt-4
+  tab-5:
+    - Alt-5
+  tab-6:
+    - Alt-6
+  tab-7:
+    - Alt-7
+  tab-8:
+    - Alt-8
+  tab-9:
+    - Alt-9
   tab-10: []
   tab-11: []
   tab-12: []
