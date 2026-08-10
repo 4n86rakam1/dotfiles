@@ -82,6 +82,10 @@
           {
             "type": "command",
             "command": "python3 ~/.dotfiles/.claude/hooks/memory_symlink.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.dotfiles/.claude/hooks/host_identity.py"
           }
         ]
       }
