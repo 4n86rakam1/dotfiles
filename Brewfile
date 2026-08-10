@@ -1,6 +1,5 @@
 brew "asdf"
 brew "borgbackup"
-brew "docker-compose"
 brew "fd"
 brew "gh"
 brew "git"

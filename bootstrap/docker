@@ -3,42 +3,42 @@
 [[ $(id -u) -eq 0 ]] || exec sudo -E "$0"
 
 
-dist=$(grep '^ID=' /etc/os-release | cut -d'=' -f2)
-build_dependencies=(apt-transport-https ca-certificates curl gnupg-agent software-properties-common)
+# shellcheck source=/dev/null
+. /etc/os-release
 
-case "${dist}" in
-    "ubuntu")
-        # https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
-        sudo install -m 0755 -d /etc/apt/keyrings
-        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-        sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-        # Add the repository to Apt sources:
-        echo \
-            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-        apt-get -qq update
-        apt-get -qq install "${build_dependencies[@]}"
-        apt-get -qq install docker-ce docker-ce-cli containerd.io
+# https://docs.docker.com/engine/install/debian/
+# https://docs.docker.com/engine/install/ubuntu/
+case "${ID}" in
+    debian | ubuntu)
+        docker_distro="${ID}"
+        docker_codename="${VERSION_CODENAME}"
         ;;
-    "kali")
+    kali)
+        # bookworm に固定: kali-rolling は upstream に存在しない
         # https://www.kali.org/docs/containers/installing-docker-on-kali/
-        echo \
-            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | \
-            sudo tee /etc/apt/sources.list.d/docker.list
-
-        curl -fsSL https://download.docker.com/linux/debian/gpg | \
-            sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-        apt-get -qq update
-        apt-get -qq install "${build_dependencies[@]}"
-        apt-get -qq install docker-ce docker-ce-cli containerd.io
+        docker_distro="debian"
+        docker_codename="bookworm"
+        ;;
+    *)
+        exit 0
+        ;;
 esac
 
+apt-get -qq install ca-certificates curl
+
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL "https://download.docker.com/linux/${docker_distro}/gpg" -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${docker_distro} ${docker_codename} stable" \
+    > /etc/apt/sources.list.d/docker.list
+
+apt-get -qq update
+apt-get -qq install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # https://docs.docker.com/engine/install/linux-postinstall/
-if logname &> /dev/null; then
-    usermod -aG docker "$(logname)"
+# 非対話実行では utmp が引けず logname が失敗するため SUDO_USER を先に見る
+docker_user="${SUDO_USER:-$(logname 2> /dev/null || true)}"
+if [[ -n "${docker_user}" && "${docker_user}" != "root" ]]; then
+    usermod -aG docker "${docker_user}"
 fi
