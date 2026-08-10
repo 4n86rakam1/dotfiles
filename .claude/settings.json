@@ -137,7 +137,7 @@
   },
   "theme": "dark",
   "editorMode": "normal",
-  "preferredNotifChannel": "auto",
+  "preferredNotifChannel": "terminal_bell",
   "autoCompactEnabled": true,
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": false

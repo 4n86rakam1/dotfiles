@@ -107,6 +107,15 @@ hotkeys:
   switch-profile: []
   profile-selector: []
   command-selector: []
+  debug-save-state: []
+  debug-load-state: []
+  debug-copy-state: []
+  debug-paste-state: []
+  debug-save-output: []
+  debug-load-output: []
+  debug-copy-output: []
+  debug-paste-output: []
+  pin-tab: []
 terminal:
   searchOptions: {}
   colorScheme:
@@ -163,6 +172,7 @@ terminal:
   hideTabIndex: true
   hideTabOptionsButton: true
   hideCloseButton: true
+  bell: audible
 ssh: {}
 clickableLinks: {}
 accessibility: {}

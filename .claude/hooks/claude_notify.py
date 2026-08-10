@@ -1,8 +1,10 @@
 """Notification hook: notify-send on non-WSL Linux, PowerShell WinRT toast on
-WSL. Failures are logged silently to ~/.claude/hooks-notify.log."""
+WSL, no-op on hosts that ship neither. Failures are logged silently to
+~/.claude/hooks-notify.log."""
 
 import base64
 import json
+import shutil
 import subprocess
 import sys
 import time
@@ -40,6 +42,19 @@ def _detect_wsl() -> bool:
 # On WSL, notify-send + libnotify-bin can exit 0 while silently failing, so the
 # fallback never runs. Skip notify-send entirely and go straight to PowerShell.
 IS_WSL = _detect_wsl()
+
+
+def _detect_notifier() -> bool:
+    if not IS_WSL and shutil.which("notify-send"):
+        return True
+    return shutil.which("powershell.exe") is not None
+
+
+# Headless hosts (havana) ship no notifier binary at all. Without this gate every
+# notification appends a failure line, burying the entries that are actionable.
+# Those hosts surface notifications through the terminal bell instead
+# (preferredNotifChannel), which needs no cooperation from this hook.
+HAS_NOTIFIER = _detect_notifier()
 
 
 def log_failure(reason: str) -> None:
@@ -127,6 +142,9 @@ def main() -> None:
     try:
         event = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
+        return
+
+    if not HAS_NOTIFIER:
         return
 
     body = str(event.get("message") or "").strip() or "Notification"
