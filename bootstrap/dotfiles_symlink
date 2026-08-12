@@ -21,6 +21,7 @@ dotfiles_list=(
     .claude/skills/memory-sweep/
     .claude/skills/proofread-en/
     .claude/skills/proofread-ja/
+    .claude/skills/spawn-session/
     .claude/skills/spec/
     .config/proofread/
     .config/tabby/config.yaml
