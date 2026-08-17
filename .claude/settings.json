@@ -86,6 +86,10 @@
           {
             "type": "command",
             "command": "python3 ~/.dotfiles/.claude/hooks/host_identity.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.dotfiles/.claude/hooks/peer_sessions.py"
           }
         ]
       }
