@@ -92,7 +92,7 @@ Fill the required sections below. Follow the user's existing `plans/*_design.md`
 <Open questions from grilling. Judgment calls left for implementation.>
 ```
 
-Follow `~/.claude/rules/code-style-md.md`:
+Follow `~/.claude/rules/code-style-md.md` and `~/.claude/rules/response-style-ja.md`:
 
 - No tables (use bullets)
 - 常体 (だ・である) — no です・ます
