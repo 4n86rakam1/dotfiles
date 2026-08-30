@@ -29,6 +29,7 @@ MS_PER_SECOND = 1000
 SEPARATOR = " | "
 PATH_MAX_WIDTH = 32
 WORKTREE_BRANCH_PREFIX = "worktree-"
+DEFAULT_OUTPUT_STYLE = "default"
 PATH_TAIL_DEPTH = 2
 FALLBACK_COLUMNS = 120
 RIGHT_MARGIN = 2
@@ -153,6 +154,14 @@ def fmt_model(data):
     return text + RESET
 
 
+def fmt_output_style(data):
+    name = ((data.get("output_style") or {}).get("name") or "").strip()
+    # default は素の挙動なので、名前を出しても判断材料が増えない
+    if not name or name == DEFAULT_OUTPUT_STYLE:
+        return None
+    return f"{CYAN}✎ {name}{RESET}"
+
+
 def fmt_agent(data):
     name = ((data.get("agent") or {}).get("name") or "").strip()
     if not name:
@@ -259,14 +268,15 @@ def main():
 
     # 表示順はこの並び、幅が足りないときは第 1 要素の大きいものから捨てる
     segments = [
-        (5, fmt_model(data)),
+        (6, fmt_model(data)),
+        (3, fmt_output_style(data)),
         (2, fmt_agent(data)),
         (1, fmt_vcs(data)),
-        (3, fmt_location(data)),
+        (4, fmt_location(data)),
         (0, fmt_context(ctx)),
-        (4, fmt_rate_window(rate_limits.get("five_hour"), "5h")),
-        (7, fmt_rate_window(rate_limits.get("seven_day"), "7d")),
-        (6, fmt_meta(data.get("cost") or {})),
+        (5, fmt_rate_window(rate_limits.get("five_hour"), "5h")),
+        (8, fmt_rate_window(rate_limits.get("seven_day"), "7d")),
+        (7, fmt_meta(data.get("cost") or {})),
     ]
 
     if line := fit(segments, width):
