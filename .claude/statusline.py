@@ -31,6 +31,7 @@ PATH_MAX_WIDTH = 32
 WORKTREE_BRANCH_PREFIX = "worktree-"
 DEFAULT_OUTPUT_STYLE = "default"
 PATH_TAIL_DEPTH = 2
+SESSION_ID_WIDTH = 8
 FALLBACK_COLUMNS = 120
 RIGHT_MARGIN = 2
 WIDE_EAST_ASIAN = ("W", "F")
@@ -169,6 +170,14 @@ def fmt_agent(data):
     return f"{YELLOW}▸ {name}{RESET}"
 
 
+def fmt_session(data):
+    session_id = (data.get("session_id") or "").strip()
+    if not session_id:
+        return None
+    # 先頭 8 文字あれば ~/.claude/projects/*/<prefix>*.jsonl で transcript を辿れる
+    return f"{DIM}⧉ {session_id[:SESSION_ID_WIDTH]}{RESET}"
+
+
 def fmt_window_size(n):
     if n >= TOKENS_PER_M:
         return f"{n / TOKENS_PER_M:g}M"
@@ -268,15 +277,16 @@ def main():
 
     # 表示順はこの並び、幅が足りないときは第 1 要素の大きいものから捨てる
     segments = [
-        (6, fmt_model(data)),
+        (7, fmt_model(data)),
         (3, fmt_output_style(data)),
         (2, fmt_agent(data)),
         (1, fmt_vcs(data)),
         (4, fmt_location(data)),
         (0, fmt_context(ctx)),
-        (5, fmt_rate_window(rate_limits.get("five_hour"), "5h")),
-        (8, fmt_rate_window(rate_limits.get("seven_day"), "7d")),
-        (7, fmt_meta(data.get("cost") or {})),
+        (6, fmt_rate_window(rate_limits.get("five_hour"), "5h")),
+        (9, fmt_rate_window(rate_limits.get("seven_day"), "7d")),
+        (8, fmt_meta(data.get("cost") or {})),
+        (5, fmt_session(data)),
     ]
 
     if line := fit(segments, width):
