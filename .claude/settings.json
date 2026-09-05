@@ -61,6 +61,21 @@
           {
             "type": "command",
             "command": "python3 ~/.dotfiles/.claude/hooks/gh_api_readonly.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.dotfiles/.claude/hooks/bash_file_access_log.py || true"
+          }
+        ]
+      }
+    ],
+    "InstructionsLoaded": [
+      {
+        "matcher": "path_glob_match|nested_traversal|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.dotfiles/.claude/hooks/instructions_loaded_log.py"
           }
         ]
       }

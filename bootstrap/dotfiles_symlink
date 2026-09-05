@@ -23,6 +23,7 @@ dotfiles_list=(
     .claude/skills/proofread-ja/
     .claude/skills/spawn-session/
     .claude/skills/spec/
+    .claude/skills/tool-mix-audit/
     .config/proofread/
     .config/tabby/config.yaml
     .local/bin/proofread
