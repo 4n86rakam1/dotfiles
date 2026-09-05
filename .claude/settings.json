@@ -111,6 +111,9 @@
       }
     ]
   },
+  "env": {
+    "CLAUDE_CODE_THRIFTY_SONIC": "0"
+  },
   "statusLine": {
     "type": "command",
     "command": "python3 ~/.claude/statusline.py"
