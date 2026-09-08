@@ -94,7 +94,7 @@ Fill the required sections below. Follow the user's existing `plans/*_design.md`
 
 Follow `~/.claude/rules/code-style-md.md` and `~/.claude/rules/response-style-ja.md`:
 
-- No tables (use bullets)
+- Tables only where rows and columns both carry meaning; otherwise bullets
 - 常体 (だ・である) — no です・ます
 - Half-width parens `()` only, never full-width `（）`
 - Fenced code blocks require a language tag
