@@ -15,10 +15,12 @@ Do not use this when one session suffices. A named `Agent` subagent already hand
 Three questions decide how many sessions to start. The default is "do not split".
 
 - **Do they touch the same files?** If so, keep them in one session. Separate worktrees still conflict at merge. If a change alters the meaning of a function's return value, whatever reads that return value belongs in the same session
-- **Is separating verification worth it?** An implementer measuring their own change only looks at the side that worked. When correctness is judged by classifying every changed result (detectors, parsers, formatters), give verification its own session. Skip this for straightforward work
+- **Is separating verification worth it?** An implementer measuring their own change only looks at the side that worked. Ask this of the evidence, not of the subject matter: when confirming the change means classifying every result it produced — each page, each row, each match — and the one who produced them would also be deriving what the right answer was, verification belongs in its own session. Detectors and parsers are the obvious shape, but a generator emitting a set of files from a list it derived itself is the same shape, and so is anything whose expected output nobody wrote down beforehand. Skip this only when one command's exit code settles the question
 - **Does parallelism shorten anything?** If the critical path sits in one chain, peeling off the rest does not move the finish time. Independence alone is not a reason to split
 
 Absent a reason to split, use two sessions (worker + lead), or one worker per independent task with no aggregator. **Do not start a session whose only job is aggregation.** Collecting completion notices and artifact paths is something the calling session can do itself.
+
+That prohibition does not reach a verifier. A verifier produces a measurement nobody else has; an aggregator only forwards what the others already reported. So "one worker per independent task with no aggregator" says nothing about whether to add one — the verification question above decides that by itself, and it decides it after the workers are counted, not instead of counting them.
 
 ## Steps
 
@@ -44,7 +46,7 @@ Present it as one table, a row per session, so the shape reads at a glance:
 | `auto`              | The usual answer: a classifier reviews each action in the user's place. Prompts come back only after it blocks 3 in a row or 20 in a session              |
 | `bypassPermissions` | No checks. `--bg` refuses this mode until the user has accepted the bypass dialog once in an interactive session, so confirm that rather than assuming it |
 
-Under the table put one line on why this split and not another, and one line on anything the user must decide — the permission mode belongs in that line whenever it is above `acceptEdits`. Nothing else — no prompt drafts, no restated background. Launch only after approval.
+Under the table put one line on why this split and not another, one line on verification — which session measures the result, or why no session needs to — and one line on anything the user must decide; the permission mode belongs in that line whenever it is above `acceptEdits`. **The verification line is required even when the answer is no**, because a table of workers looks complete whether the question was asked or skipped, and that is the one omission the user cannot see. Nothing else — no prompt drafts, no restated background. Launch only after approval.
 
 ### 3. Write prompts to files
 
