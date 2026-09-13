@@ -82,9 +82,11 @@ Launch one at a time, waiting for each id. `-w` runs `git worktree add` against 
 
 ### 5. Report
 
-One table, a row per session, cwd measured rather than assumed (`claude agents --json | jq -r '.[] | select(.id=="<id>") | .cwd'`):
+One table, a row per session, status and cwd measured rather than assumed — one call gives you both (`claude agents --json | jq -r '.[] | select(.id=="<id>") | "\(.status) \(.cwd)"'`):
 
-| Name | id | cwd | Role |
+| Name | id | cwd | Status | Role |
+
+Read the status column before you report it: `waiting` is a session stopped at a permission prompt, not one at work, and it never fires `notify_when_idle`. Report it as stopped and say what it is waiting on.
 
 Then two lines: `claude agents` to check them, and `SendMessage(to: "<name>", message: "...")` to add instructions. Do not repeat the prompts or the reasoning — the table and those two lines are the whole report.
 
