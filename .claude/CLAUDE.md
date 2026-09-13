@@ -6,6 +6,10 @@
 
 委譲先の成果はファイルへ書かせ、パスを報告に含めさせる。報告が返らなくても結果を回収できるようにする。
 
+## worktree の base
+
+`EnterWorktree` の直後に `git log --oneline HEAD..main` を確認し、空でなければ `git rebase main`。既定の base は `origin/<default-branch>` なので、ローカル main が先行していると欠けた状態で始まる。
+
 ## 曖昧な指示への対応
 
 Prompt から対象・完了条件・制約のいずれも読み取れない場合、まず最重要の 1 点を 1 行質問で確認する (skill は起動しない)。曖昧さ解消後、中規模以上のタスク (複数ファイル変更、新規機能設計、調査結果に依存する判断) では `superpowers:brainstorming` を起動する。`grilling` skill はユーザーが明示的に起動要求した時のみ使う (`/spec` 経由の grilling 呼び出しは明示要求扱い)。

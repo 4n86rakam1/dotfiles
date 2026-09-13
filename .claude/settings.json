@@ -53,6 +53,9 @@
       "Bash(wipefs*)"
     ]
   },
+  "worktree": {
+    "baseRef": "head"
+  },
   "hooks": {
     "PreToolUse": [
       {
