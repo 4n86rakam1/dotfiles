@@ -22,6 +22,7 @@ dotfiles_list=(
     .claude/skills/proofread-en/
     .claude/skills/proofread-ja/
     .claude/skills/spawn-session/
+    .claude/skills/spawn-team/
     .claude/skills/spec/
     .claude/skills/tool-mix-audit/
     .config/proofread/
