@@ -26,7 +26,9 @@ That prohibition does not reach a verifier. A verifier produces a measurement no
 
 ### 1. Decide every name up front
 
-Pass the same string to `-n` and `-w`, so the display name and the worktree share it. That name is the literal `SendMessage` address, and the worktree name becomes a branch name — `SendMessage` itself accepts spaces, but a branch name does not, so write it as a git ref: `fix-go-imports`.
+Pass the same string to `-n` and `-w`, so the display name and the worktree share it. That name is the literal `SendMessage` address, and the worktree name becomes a branch name — `SendMessage` itself accepts spaces and brackets, but a branch name takes neither, so write it as a git ref.
+
+Spell it `<role>-<task>`, the role drawn from `worker`, `verifier`, `lead`: `worker-fix-go-imports`, `verifier-fix-go-imports`. One string then serves as display name, worktree, and branch, so which session holds which branch reads off the name instead of being measured later. The caller is the exception — a running session cannot rename itself — so its role lives in the Role column of the table below.
 
 Check `claude agents --json --all` for collisions; plain `--json` omits finished sessions, and those keep their names. A duplicate is not cosmetic: a bare name stops resolving and needs a `[ref]`, and an in-process agent sharing the name always wins, so messages go somewhere else without erroring.
 
@@ -37,6 +39,18 @@ Decide all names now. Then each prompt can name peers that have not started yet,
 Present it as one table, a row per session, so the shape reads at a glance:
 
 | Name | Role | Worktree | Permission mode | Does what |
+
+**The caller is the first row.** Its Name is its own display name, or `(this session)` when it has none; its Worktree is normally none, meaning the user's working copy; its Permission mode is the mode it is running in, read rather than assumed. Leave the row out and the launch gets approved while the caller's own conduct does not, which is how one team ends up supervised and the next one abandoned.
+
+The caller's Role is one of three words:
+
+- **`supervisor`** — on each completion notice, check out that branch, run the suite, classify the diff, send shortfalls back through `SendMessage`
+- **`relay`** — carry the verifier's measurement to the user, measuring nothing itself
+- **`hands-off`** — report the launch and stop. Only when the user asks for it
+
+A configuration with a verifier in it makes the caller a `relay`; one without makes it a `supervisor`. Same logic as the aggregator prohibition: the caller does what no session needs to exist for, and it measures only when no session was given the measurement.
+
+Three things stay the caller's whichever word applies — noticing a session stopped at `waiting`, arranging its recovery, and relaying to the user. In a team nobody is watching, there is no one else to do them.
 
 **Permission mode is a REQUIRED column, not a detail to settle at launch.** Pick it against the Bash the prompt implies — dependency install, `git add`/`git commit`, scripts invoked by path, whatever a test loop reruns — and against the settings allowlist, which on most machines holds read-only commands and nothing else:
 
@@ -63,7 +77,7 @@ Every prompt states:
 
 Three role shapes cover the cases:
 
-- **generator-verifier** — worker builds, lead verifies by measurement, failures go back. Use when correctness is only visible in a diff
+- **generator-verifier** — worker builds, verifier measures, failures go back. Use when correctness is only visible in a diff. Tell the verifier to commit nothing and to write its measurement to its status file: a verifier that adds tests writes into the same files the worker touched, and that is the one collision the file-overlap question cannot screen out
 - **orchestrator** — lead plans and delegates, worker executes
 - **team** — coordinator hands out independent tasks
 
@@ -90,7 +104,34 @@ One table, a row per session, status and cwd measured rather than assumed — on
 
 Read the status column before you report it: `waiting` is a session stopped at a permission prompt, not one at work, and it never fires `notify_when_idle`. Report it as stopped and say what it is waiting on.
 
+Carry the caller's row into this table too, with the Role word from step 2, so the report says who is watching.
+
 Then two lines: `claude agents` to check them, and `SendMessage(to: "<name>", message: "...")` to add instructions. Do not repeat the prompts or the reasoning — the table and those two lines are the whole report.
+
+The report closes the launch, not the caller's turn. Unless the caller is `hands-off`, subscribe with `notify_when_idle: true` before reporting and then hold the role step 2 approved. `hands-off` is the only word that ends here.
+
+### 6. Wind the team down
+
+Only on the user's word. Completion notices from every session are not the signal — integrating into a target branch is the user's call, the same as the permission mode is.
+
+Run it from the repo root, in this order:
+
+1. Record each session's branch and worktree path from `claude agents --json`. Measure them: a name gives the spelling, not whether the worktree is still there
+2. Settle uncommitted changes. A session still running commits its own — `SendMessage` it, since it knows its worktree better than the caller does. For one already stopped, the caller commits in that worktree
+3. `claude stop`, then `claude rm`, each session — **before any worktree is removed.** Deleting the cwd under a live session breaks it, and a live session sharing the `.git` fights the merge over `index.lock`
+4. Confirm the working copy is clean, resolve the target (`main` by default, confirm anything else), check it out, and verify the current branch before merging
+5. `git merge --squash <branch>`, one branch at a time, taking branches whose changes others read first. **Run the suite after each one and stop on red.** Every branch was cut from the same base, so the second knows nothing of the first: same file gives a conflict, different files give a semantic conflict that only the suite catches. On a conflict or a diverged branch, rebase that branch onto the target and redo its squash merge. A branch carrying no commits of its own — a read-only verifier's — has nothing to merge; take it to removal as it is
+6. `git worktree remove --force <path>` and `git branch -D <branch>`. `--force` because gitignored `vendor/` and `node_modules/` leave the worktree permanently untracked-dirty, and it is safe only because step 2 settled the tracked changes first. `-D` because a squash-merged branch is not an ancestor of the target, so `-d` refuses it
+7. Do not push. Report the commits left on the target
+
+Where `git commit` falls in that loop is the one thing the role shape decides:
+
+- **generator-verifier and orchestrator** — one feature, one commit. Let the squashes accumulate in the index and commit once at the end, after the last suite run
+- **team** — one commit per branch, right after each squash. Those tasks were independent by construction, and collapsing them together destroys the unit anyone would revert
+
+Leave `~/.cache/<project>-handoff/` in place. The prompts and status files are what this report rests on; clear them when the user asks.
+
+When the caller is itself inside a worktree, `ExitWorktree(action: "keep")` first, then treat its branch as one more in step 5's order.
 
 ## Pitfalls
 
@@ -106,13 +147,14 @@ Only the ones you hit without warning.
 | Concurrent writes to a shared virtualenv or cache (`~/.cache/*/venv`) corrupt it                                          | Write "do not install here; stop and report if something is missing" into the prompt                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Launching while tests are already red makes every session chase the same noise                                            | Run the suite once before launching and confirm the baseline is green                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `SendMessage` sent from a subagent to a background session returns to the parent session's conversation, not the subagent | Keep primary reporting in files (`~/.cache/<project>-handoff/status-<role>.md`) and use `SendMessage` for launch signals and nudges                                                                                                                                                                                                                                                                                                                                                                     |
-| Taking a worker's "tests green" or "fixed N cases" at face value                                                          | Run the suite yourself on each branch. Implementers see the side that worked; what broke and what overreached only surface by classifying the whole diff                                                                                                                                                                                                                                                                                                                                                |
+| Taking a worker's "tests green" or "fixed N cases" at face value                                                          | This is what `supervisor` in step 2 buys: run the suite yourself on each branch. Implementers see the side that worked; what broke and what overreached only surface by classifying the whole diff. A `relay` caller does not repeat the verifier's measurement — it checks that one was actually made                                                                                                                                                                                                  |
 
 ## Out of scope
 
-- **Merging the branches and cleaning up afterwards.** `claude rm <id>` drops the session; the worktrees and branches are yours to integrate under whatever the project's merge rules are
+- **Winding the team down unasked.** Step 6 is the caller's to run, and only on the user's word. A full set of completion notices is not that word
+- **Pushing the target branch.** Step 6 stops at the commits it leaves locally. Pushing happens on the user's timing, when they ask for it
 - **Raising the permission mode on your own.** Launching a session more permissive than the one you are in routes around a decision the user made about your session. `bypassPermissions` is not off limits — it is the user's to grant, which is what the mode column in step 2 exists for. What stays out of scope is picking a mode they have not seen: at launch, on a relaunch, or when nudging a session already stalled at `waiting`
 
 ## Worked example
 
-Four fixes in one analyzer: three touched the same file, and one of those three altered a function's return meaning, so everything reading it stayed together. The fourth was independent but sat off the critical path, so splitting it would have bought nothing. One worker, one lead, generator-verifier — and the lead sent back four items, three of which the reports alone read clean on.
+Four fixes in one analyzer: three touched the same file, and one of those three altered a function's return meaning, so everything reading it stayed together. The fourth was independent but sat off the critical path, so splitting it would have bought nothing. `worker-analyzer-fixes` and `verifier-analyzer-fixes`, generator-verifier, the caller a `relay` — and the verifier sent back four items, three of which the reports alone read clean on. Teardown collapsed the worker's branch into one commit; the verifier's had none to collapse.
