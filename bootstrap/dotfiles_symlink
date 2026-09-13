@@ -17,6 +17,7 @@ dotfiles_list=(
     .markdownlint.yaml
     .claude/settings.json
     .claude/statusline.py
+    .claude/skills/catchup/
     .claude/skills/memory-audit/
     .claude/skills/memory-sweep/
     .claude/skills/proofread-en/
