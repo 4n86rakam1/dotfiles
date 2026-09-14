@@ -26,6 +26,7 @@ dotfiles_list=(
     .claude/skills/spawn-team/
     .claude/skills/spec/
     .claude/skills/tool-mix-audit/
+    .claude/skills/worktree-exit/
     .config/proofread/
     .config/tabby/config.yaml
     .local/bin/proofread
