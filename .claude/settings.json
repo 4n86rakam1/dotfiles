@@ -58,6 +58,9 @@
     ]
   },
   "model": "opus[1m]",
+  "attribution": {
+    "sessionUrl": false
+  },
   "worktree": {
     "baseRef": "head"
   },
